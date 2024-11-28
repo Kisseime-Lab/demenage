@@ -1,0 +1,238 @@
+openapi: 3.0.3
+
+info:
+  title: Demenage
+  version: 1.0.0
+
+tags:
+  - name: Annonce
+  - name: Offre
+paths:
+  /api/v1/annonces:
+    post:
+      tags:
+        - Annonce
+      summary: create an annonce
+      description: create an annonce
+      operationId: createAnnonce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Annonce"
+      responses:
+        201:
+          description: created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+    get:
+      tags:
+        - Annonce
+      operationId: getLatestAnnonce
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        200:
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annonce'
+  /api/v1/annonce/{id}:
+    get:
+      tags:
+        - Annonce
+      operationId: getAnnonceById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        200:
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+        400:
+          description: error when fetching annonce
+    put:
+      tags:
+        - Annonce
+      operationId: updateAnnonce
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Annonce'
+      responses:
+        200:
+          description: updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+        400:
+          description: error when updating annonce
+    delete:
+      tags:
+        - Annonce
+      operationId: deleteAnnonce
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: deleted successfully
+        400:
+          description: error when deleting annonce
+  /api/v1/offres:
+    post:
+      tags:
+        - Offre
+      description: create an Offre
+      summary: create an Offre
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Offre"
+      responses:
+        201:
+          description: Created Offre
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error when creating an offer
+    get:
+      tags:
+        - Offre
+      description: get all Offers of a specific announce
+      summary: get all Offers of a specific announce
+      parameters:
+        - name: annonce_id
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        200: 
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offre"
+  /api/v1/offre/{id}:
+    get:
+      tags:
+        - Offre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200: 
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error when getting
+    put:
+      tags:
+        - Offre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error
+    delete:
+      tags:
+        - Offre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: offer deleted
+        400:
+          description: error when deleting an offer
+
+
+components:
+  schemas:
+    Annonce:
+      type: object
+      properties:
+        id:
+          type: string
+        departure:
+          type: string
+        destination:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        distance:
+          type: number
+        prix:
+          type: number
+        author:
+          type: string
+    
+    Offre:
+      type: object
+      properties:
+        id:
+          type: string
+        prix:
+          type: number
+        author:
+          type: string
+        annonceId:
+          type: string
