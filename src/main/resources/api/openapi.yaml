@@ -32,6 +32,12 @@ paths:
         - Annonce
       operationId: getLatestAnnonce
       parameters:
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
         - name: page
           in: query
           schema:
@@ -48,9 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Annonce'
+                type: object
   /api/v1/annonce/{id}:
     get:
       tags:
@@ -115,6 +119,7 @@ paths:
       tags:
         - Offre
       description: create an Offre
+      operationId: addUpdateOffre
       summary: create an Offre
       requestBody:
         content:
@@ -133,6 +138,7 @@ paths:
     get:
       tags:
         - Offre
+      operationId: getOffreByAnnonceId
       description: get all Offers of a specific announce
       summary: get all Offers of a specific announce
       parameters:
@@ -141,19 +147,28 @@ paths:
           in: query
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
       responses:
         200: 
           description: get successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Offre"
+                type: object
   /api/v1/offre/{id}:
     get:
       tags:
         - Offre
+      operationId: getOffreById
       parameters:
         - name: id
           in: path
@@ -172,6 +187,7 @@ paths:
     put:
       tags:
         - Offre
+      operationId: updateOffre
       parameters:
         - name: id
           in: path
@@ -190,6 +206,7 @@ paths:
     delete:
       tags:
         - Offre
+      operationId: deleteOffre
       parameters:
         - name: id
           in: path
@@ -210,10 +227,13 @@ components:
       properties:
         id:
           type: string
+        createdAt:
+          type: string
+          default: ""
         departure:
-          type: string
+          $ref: "#/components/schemas/Adresse"
         destination:
-          type: string
+          $ref: "#/components/schemas/Adresse"
         photos:
           type: array
           items:
@@ -224,15 +244,36 @@ components:
           type: number
         author:
           type: string
+        open:
+          type: boolean
+
+    Adresse:
+      type: object
+      properties:
+        city:
+          type: string
+        libelle:
+          type: string
+        zipCode:
+          type: string
     
     Offre:
       type: object
       properties:
         id:
           type: string
+        createdAt:
+          type: string
+          default: ""
         prix:
           type: number
         author:
           type: string
         annonceId:
           type: string
+        status:
+          type: string
+          enum:
+            - REFUSED
+            - ACCEPTED
+            - PENDING
