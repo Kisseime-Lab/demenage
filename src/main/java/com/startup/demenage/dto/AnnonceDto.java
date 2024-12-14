@@ -28,6 +28,7 @@ public class AnnonceDto {
         annonce.setCreatedAt(annonceEntity.getCreatedAt().toString());
         annonce.setDeparture(adresseDto.toModel(annonceEntity.getDeparture()));
         annonce.setDestination(adresseDto.toModel(annonceEntity.getDestination()));
+        annonce.setOffres(BigDecimal.valueOf(annonceEntity.getOffres()));
         return annonce;
     }
 

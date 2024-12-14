@@ -8,5 +8,6 @@ import com.startup.demenage.entity.AnnonceEntity;
 
 public interface AnnonceRepository extends JpaRepository<AnnonceEntity, String> {
     
-    Page<AnnonceEntity> findByDepartureCityContaining(String city, Pageable pageable);
+    Page<AnnonceEntity> findByDepartureCityContainingAndDestinationCityContaining(
+        String cityDepart, String cityDestination, Pageable pageable);
 }

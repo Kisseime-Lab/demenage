@@ -32,7 +32,19 @@ paths:
         - Annonce
       operationId: getLatestAnnonce
       parameters:
-        - name: city
+        - name: city_depart
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: city_arrivee
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: user_id
           in: query
           required: false
           schema:
@@ -147,6 +159,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: author_id
+          required: false
+          in: query
+          schema:
+            type: string
         - name: page
           in: query
           schema:
@@ -230,6 +247,9 @@ components:
         createdAt:
           type: string
           default: ""
+        titre:
+          type: string
+          default: ""
         departure:
           $ref: "#/components/schemas/Adresse"
         destination:
@@ -246,6 +266,9 @@ components:
           type: string
         open:
           type: boolean
+        offres:
+          type: number
+          default: number
 
     Adresse:
       type: object

@@ -1,41 +1,57 @@
 package com.startup.demenage.service.serviceImpl;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.startup.demenage.dto.AnnonceDto;
+import com.startup.demenage.entity.AnnonceEntity;
 import com.startup.demenage.entity.OffreEntity;
 import com.startup.demenage.model.Offre;
 import com.startup.demenage.repository.OffreRepository;
+import com.startup.demenage.service.AnnonceService;
 import com.startup.demenage.service.OffreService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class OffreServiceImpl implements OffreService {
 
     private final OffreRepository repository;
+    private final AnnonceService annonceService;
+    private final AnnonceDto annonceDto;
 
-    
-    public OffreServiceImpl(OffreRepository repository) {
+    public OffreServiceImpl(OffreRepository repository, AnnonceService annonceService, AnnonceDto annoncedto) {
         this.repository = repository;
+        this.annonceService = annonceService;
+        this.annonceDto = annoncedto;
+
     }
 
     @Override
     public OffreEntity addUpdateOffre(Offre offre) {
         // TODO Auto-generated method stub
         OffreEntity offreEntity = this.toEntity(offre);
-        if (Objects.nonNull(offre.getId()) && !Objects.equals(offre, "")) {
+        if (Objects.nonNull(offre.getId()) && !Objects.equals(offre.getId(), "")) {
             Optional<OffreEntity> exOptional = repository.findById(offre.getId());
             if (exOptional.isPresent()) {
                 offreEntity.setId(exOptional.get().getId());
             }
+        }
+        else {
+            AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonceId());
+            annonceEntity.setOffres(annonceEntity.getOffres() + 1);
+            annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         }
         return repository.save(offreEntity);
     }
@@ -56,6 +72,9 @@ public class OffreServiceImpl implements OffreService {
         if (optional.isEmpty()) {
             throw new EntityNotFoundException("Offre with id: " + id + " not found");
         }
+        AnnonceEntity annonceEntity = annonceService.findAnnonce(optional.get().getAnnonceId());
+        annonceEntity.setOffres(annonceEntity.getOffres() - 1);
+        annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         repository.delete(optional.get());
     }
 
@@ -76,9 +95,14 @@ public class OffreServiceImpl implements OffreService {
     }
 
     @Override
-    public Page<OffreEntity> getOffreByAnnonceId(String annonceId, int page, int size) {
+    public Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return repository.findByAnnonceId(annonceId, pageable);
+        if (Objects.nonNull(annonceId) && !Objects.equals(annonceId, "")) {
+            return repository.findByAnnonceId(annonceId, pageable);
+        }
+        if (Objects.nonNull(authorId) && !Objects.equals(authorId, "")) {
+            return repository.findByAuthor(authorId, pageable);
+        }
+        return null;
     }
-    
 }

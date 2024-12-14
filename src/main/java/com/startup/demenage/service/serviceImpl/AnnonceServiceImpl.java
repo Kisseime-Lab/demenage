@@ -1,10 +1,13 @@
 package com.startup.demenage.service.serviceImpl;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,8 +21,10 @@ import com.startup.demenage.repository.AnnonceRepository;
 import com.startup.demenage.service.AnnonceService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class AnnonceServiceImpl implements AnnonceService {
 
     private AnnonceRepository repository;
@@ -87,10 +92,18 @@ public class AnnonceServiceImpl implements AnnonceService {
     }
 
     @Override
-    public Page<AnnonceEntity> getLastestAnnonces(String city, int page, int size) {
+    public Page<AnnonceEntity> getLastestAnnonces(String cityDepart, String cityDestination, String authorId, int page, int size) {
         // TODO Auto-generated method stub
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return repository.findByDepartureCityContaining(city, pageable);
+        Page<AnnonceEntity> pageAnnonce = repository.findByDepartureCityContainingAndDestinationCityContaining(
+            cityDepart, cityDestination, pageable);
+        if (!Objects.equals(authorId, "")) {
+            List<AnnonceEntity> annonceByAuthor = pageAnnonce.getContent().stream()
+        .filter(a -> a.getAuthor().equals(authorId))
+        .collect(Collectors.toList());
+        return new PageImpl<>(annonceByAuthor, pageable, annonceByAuthor.size());
+        }
+        return pageAnnonce;
     }
 
     

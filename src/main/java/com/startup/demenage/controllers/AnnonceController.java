@@ -50,12 +50,15 @@ public class AnnonceController implements AnnonceApi {
         return AnnonceApi.super.updateAnnonce(id, annonce);
     }
 
+
     @Override
-    public ResponseEntity<Object> getLatestAnnonce(@Valid String city, @Valid Integer page, @Valid Integer size)
-            throws Exception {
+    public ResponseEntity<Object> getLatestAnnonce(@Valid String cityDepart, @Valid String cityArrivee,
+            @Valid String userId, @Valid Integer page, @Valid Integer size) throws Exception {
         // TODO Auto-generated method stub
         return status(HttpStatus.OK).body(
-            service.getLastestAnnonces(city, page, size));
+            service.getLastestAnnonces(cityDepart, cityArrivee, userId, page, size));
     }
+
+    
 
 }

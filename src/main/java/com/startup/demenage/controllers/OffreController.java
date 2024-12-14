@@ -38,21 +38,20 @@ public class OffreController implements OffreApi {
         return status(HttpStatus.OK).build();
     }
 
-    @Override
-    public ResponseEntity<Object> getOffreByAnnonceId(@Valid String annonceId, @Valid Integer page,
-            @Valid Integer size) throws Exception {
-            return status(HttpStatus.OK).body(service.getOffreByAnnonceId(annonceId, page, size));
-    }
 
     @Override
     public ResponseEntity<Offre> getOffreById(String id) throws Exception {
-        // TODO Auto-generated method stub
         return OffreApi.super.getOffreById(id);
     }
 
     @Override
+    public ResponseEntity<Object> getOffreByAnnonceId(@Valid String annonceId, @Valid String authorId,
+            @Valid Integer page, @Valid Integer size) throws Exception {
+        return status(HttpStatus.OK).body(service.getOffreByAnnonceId(annonceId, authorId, page, size));
+    }
+
+    @Override
     public ResponseEntity<Offre> updateOffre(String id) throws Exception {
-        // TODO Auto-generated method stub
         return OffreApi.super.updateOffre(id);
     }
     
