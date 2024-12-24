@@ -54,6 +54,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'io.springfox:springfox-oas:3.0.0'
 
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.10.0'
+
 	//swagger ends
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -61,6 +63,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:4.3.0'
+    
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j:9.0.0'
 }

@@ -31,28 +31,29 @@ public class OffreController implements OffreApi {
         HttpStatus status = Objects.isNull(offre.getId()) ? HttpStatus.CREATED : HttpStatus.OK;
         return status(status).body(offreDto.toModel(service.addUpdateOffre(offre)));
     }
+    
 
     @Override
-    public ResponseEntity<Void> deleteOffre(String id) throws Exception {
+    public ResponseEntity<Void> deleteOffre(String id, @Valid String byAdmin) throws Exception {
         service.deleteOffre(id);
         return status(HttpStatus.OK).build();
     }
 
 
     @Override
-    public ResponseEntity<Offre> getOffreById(String id) throws Exception {
-        return OffreApi.super.getOffreById(id);
+    public ResponseEntity<Offre> getOffreById(String id, @Valid String byAdmin) throws Exception {
+        return OffreApi.super.getOffreById(id, byAdmin);
     }
 
     @Override
     public ResponseEntity<Object> getOffreByAnnonceId(@Valid String annonceId, @Valid String authorId,
-            @Valid Integer page, @Valid Integer size) throws Exception {
-        return status(HttpStatus.OK).body(service.getOffreByAnnonceId(annonceId, authorId, page, size));
+            @Valid Integer page, @Valid Integer size, @Valid String byAdmin) throws Exception {
+        return status(HttpStatus.OK).body(service.getOffreByAnnonceId(annonceId, authorId, page, size, byAdmin));
     }
 
     @Override
-    public ResponseEntity<Offre> updateOffre(String id) throws Exception {
-        return OffreApi.super.updateOffre(id);
+    public ResponseEntity<Offre> updateOffre(String id, @Valid String byAdmin) throws Exception {
+        return OffreApi.super.updateOffre(id, byAdmin);
     }
     
 }

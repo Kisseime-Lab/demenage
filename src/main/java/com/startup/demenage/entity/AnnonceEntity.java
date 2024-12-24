@@ -42,7 +42,32 @@ public class AnnonceEntity {
     private boolean open;
     private String titre;
     private int offres;
+    private String date;
+    private boolean deleted = false;
+    private String deletedAt;
     
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(String deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+    
+    public String getDate() {
+        return date;
+    }
+    public void setDate(String date) {
+        this.date = date;
+    }
     public int getOffres() {
         return offres;
     }

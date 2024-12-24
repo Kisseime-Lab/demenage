@@ -10,5 +10,5 @@ public interface OffreService {
    OffreEntity findById(String id);
    void deleteOffre(String id);
    OffreEntity toEntity(Offre offre);
-   Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size);
+   Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size, String byAdmin);
 }

@@ -8,7 +8,7 @@ public class AdresseEntity {
     private String libelle;
     private String zipCode;
 
-    
+
     public AdresseEntity() {
     }
 
