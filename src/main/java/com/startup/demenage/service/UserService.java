@@ -4,6 +4,8 @@ package com.startup.demenage.service;
 import java.util.Optional;
 
 import com.startup.demenage.entity.UserEntity;
+import com.startup.demenage.model.InputPassword;
+import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
 import com.startup.demenage.model.SignedInUser;
 import com.startup.demenage.model.User;
@@ -18,4 +20,5 @@ public interface UserService {
     UserEntity updateUser(User user);
     void deleteUser(String email, String byAdmin);
     UserEntity getUserById(String id, String byAdmin);
+    PasswordValidated verifyPassword(InputPassword inputs);
 }

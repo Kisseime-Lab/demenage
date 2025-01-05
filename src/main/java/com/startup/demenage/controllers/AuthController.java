@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.startup.demenage.UserApi;
 import com.startup.demenage.dto.UserDto;
 import com.startup.demenage.entity.UserEntity;
+import com.startup.demenage.model.InputPassword;
+import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
 import com.startup.demenage.model.SignInReq;
 import com.startup.demenage.model.SignedInUser;
@@ -74,12 +76,19 @@ public class AuthController implements UserApi {
         return status(HttpStatus.OK).build();
     }
 
-    // @Override
-    // public ResponseEntity<User> updateUser(String email, User user, @Valid String byAdmin) throws Exception {
-    //     return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.updateUser(user)));
-    // }
+    
 
+    @Override
+    public ResponseEntity<PasswordValidated> verifyPassword(@Valid InputPassword inputPassword) throws Exception {
+        // TODO Auto-generated method stub
+        return status(HttpStatus.OK).body(service.verifyPassword(inputPassword));
+    }
 
+    @Override
+    public ResponseEntity<User> updateUser(@Valid String email, @Valid String byAdmin, @Valid User user)
+            throws Exception {
+            return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.updateUser(user)));
+    }
 
     @Override
     public ResponseEntity<SignedInUser> signUp(@Valid User user) {

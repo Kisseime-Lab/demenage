@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.startup.demenage.entity.RoleEnum;
 import com.startup.demenage.entity.UserEntity;
 import com.startup.demenage.entity.UserTokenEntity;
+import com.startup.demenage.model.InputPassword;
+import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
 import com.startup.demenage.model.SignedInUser;
 import com.startup.demenage.model.User;
@@ -25,7 +27,6 @@ import com.startup.demenage.repository.UserRepository;
 import com.startup.demenage.repository.UserTokenRepository;
 import com.startup.demenage.security.JwtManager;
 import com.startup.demenage.service.UserService;
-import com.startup.demenage.utils.RoleHolder;
 
 @Service
 @Transactional
@@ -35,18 +36,16 @@ public class UserServiceImpl implements UserService {
     private final UserTokenRepository userTokenRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
     private final JwtManager tokenManager;
-    private final RoleHolder roleHolder;
 
     public UserServiceImpl(
             UserRepository repository,
             UserTokenRepository userTokenRepository,
             PasswordEncoder bCryptPasswordEncoder,
-            JwtManager tokenManager, RoleHolder holder) {
+            JwtManager tokenManager) {
         this.repository = repository;
         this.userTokenRepository = userTokenRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.tokenManager = tokenManager;
-        this.roleHolder = holder;
     }
 
     @Override
@@ -78,6 +77,9 @@ public class UserServiceImpl implements UserService {
         if (!Objects.equals(existingUserEntity.isDeleted(), userEntity.isDeleted())) {
             userEntity.setDeleted(true);
             userEntity.setDeletedAt(LocalDateTime.now().toString());
+        }
+        if (Objects.isNull(userEntity.getPassword())) {
+            userEntity.setPassword(existingUserEntity.getPassword());
         }
         userEntity.setId(existingUserEntity.getId());
         return repository.save(userEntity);
@@ -111,6 +113,7 @@ public class UserServiceImpl implements UserService {
                                 .build());
         return new SignedInUser()
                 .username(userEntity.getUsername())
+                .role(userEntity.getRole().name())
                 .accessToken(token)
                 .userId(userEntity.getId());
     }
@@ -146,11 +149,12 @@ public class UserServiceImpl implements UserService {
         final String uname = email.trim();
         Optional<UserEntity> oUserEntity = repository.findByUsername(uname);
         UserEntity userEntity;
-        userEntity = oUserEntity.orElseThrow(
-                () -> new UsernameNotFoundException(String.format("Given user(%s) not found.", uname)));
-        if (Objects.isNull(byAdmin) && userEntity.isDeleted()) {
-            throw new UsernameNotFoundException(String.format("Given user(%s) not found.", uname));
-        }
+        // userEntity = oUserEntity.orElseThrow(
+        //         () -> new UsernameNotFoundException(String.format("Given user(%s) not found.", uname)));
+        // if (Objects.isNull(byAdmin) && userEntity.isDeleted()) {
+        //     throw new UsernameNotFoundException(String.format("Given user(%s) not found.", uname));
+        // }
+        userEntity = oUserEntity.orElse(null);
         return userEntity;
     }
 
@@ -158,10 +162,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity toEntity(User user) {
         UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        String newId = userEntity.getId();
+        BeanUtils.copyProperties(user, userEntity, "createdAt");
+        if (Objects.isNull(user.getId()) || Objects.equals(user.getId(), "")) {
+            userEntity.setId(newId);
+        }
         userEntity.setRole(RoleEnum.valueOf(user.getRole()));
-        userEntity.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        if (Objects.nonNull(user.getPassword()) && !Objects.equals(user.getPassword(), "")) {
+            userEntity.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
         return userEntity;
+    }
+
+    @Override
+    public PasswordValidated verifyPassword(InputPassword inputs) {
+        UserEntity userEntity = findUserByEmail(inputs.getEmail(), null);
+        if (Objects.isNull(userEntity)) {
+            return new PasswordValidated().passwordValidated(false);
+        }
+        return new PasswordValidated().passwordValidated(userEntity.getPassword().equals(bCryptPasswordEncoder.encode(inputs.getPassword())));
     }
 
     private String createRefreshToken(UserEntity user) {

@@ -411,6 +411,28 @@ paths:
       responses:
         202:
           description: Accepts the request for logout.
+  /api/v1/verify-password:
+    post:
+      tags:
+        - User
+      operationId: verifyPassword
+      summary: verify password
+      description: verify password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputPassword'
+      responses:
+        200:
+          description: checked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordValidated"
+        400:
+          description: error
+
   /api/v1/auth/token/refresh:
     post:
       tags:
@@ -570,3 +592,19 @@ components:
           type: boolean
         deletedAt:
           type: string
+        image:
+          type: string
+        createdAt:
+          type: string
+    InputPassword:
+      type: object
+      properties:
+        password:
+          type: string
+        email:
+          type: string
+    PasswordValidated:
+      type: object
+      properties:
+        passwordValidated:
+          type: boolean

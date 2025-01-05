@@ -54,7 +54,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'io.springfox:springfox-oas:3.0.0'
 
-    implementation 'com.google.auth:google-auth-library-oauth2-http:1.10.0'
+    implementation 'com.google.firebase:firebase-admin:9.4.2'
+
 
 	//swagger ends
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

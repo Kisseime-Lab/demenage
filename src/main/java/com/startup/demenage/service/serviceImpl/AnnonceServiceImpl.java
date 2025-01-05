@@ -20,7 +20,6 @@ import com.startup.demenage.model.Adresse;
 import com.startup.demenage.model.Annonce;
 import com.startup.demenage.repository.AnnonceRepository;
 import com.startup.demenage.service.AnnonceService;
-import com.startup.demenage.utils.RoleHolder;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,11 +29,9 @@ import jakarta.transaction.Transactional;
 public class AnnonceServiceImpl implements AnnonceService {
 
     private AnnonceRepository repository;
-    private final RoleHolder roleHolder;
 
-    public AnnonceServiceImpl(AnnonceRepository repository, RoleHolder roleHolder) {
+    public AnnonceServiceImpl(AnnonceRepository repository) {
         this.repository = repository;
-        this.roleHolder = roleHolder;
     }
 
     @Override
@@ -60,10 +57,10 @@ public class AnnonceServiceImpl implements AnnonceService {
         if (optional.isEmpty()) {
             throw new EntityNotFoundException("Annonce with id: " + id + " not found");
         }
-        if (optional.get().isDeleted() && roleHolder.getRole().equals("CUSTOMER")) {
+        if (optional.get().isDeleted() && Objects.isNull(byAdmin)) {
             throw new EntityNotFoundException("Annonce with id: " + id + " not found");
         }
-        if (roleHolder.getRole().equals("ADMIN")) {
+        if (Objects.nonNull(byAdmin)) {
             repository.delete(optional.get());
         }
     }

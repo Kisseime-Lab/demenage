@@ -23,6 +23,14 @@ public class UserEntity {
     private String status;
     private String image;
     private String createdAt;
+    private String phone;
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
     private boolean deleted = false;
     private String deletedAt;
     

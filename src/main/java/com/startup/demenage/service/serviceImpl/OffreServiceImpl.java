@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,6 @@ import com.startup.demenage.model.Offre;
 import com.startup.demenage.repository.OffreRepository;
 import com.startup.demenage.service.AnnonceService;
 import com.startup.demenage.service.OffreService;
-import com.startup.demenage.utils.RoleHolder;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -34,13 +32,11 @@ public class OffreServiceImpl implements OffreService {
     private final OffreRepository repository;
     private final AnnonceService annonceService;
     private final AnnonceDto annonceDto;
-    private final RoleHolder roleHolder;
 
-    public OffreServiceImpl(OffreRepository repository, AnnonceService annonceService, AnnonceDto annoncedto, RoleHolder roleHolder) {
+    public OffreServiceImpl(OffreRepository repository, AnnonceService annonceService, AnnonceDto annoncedto) {
         this.repository = repository;
         this.annonceService = annonceService;
         this.annonceDto = annoncedto;
-        this.roleHolder = roleHolder;
     }
 
     @Override

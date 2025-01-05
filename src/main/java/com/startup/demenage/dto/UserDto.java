@@ -15,7 +15,7 @@ public class UserDto {
     public User toModel(UserEntity userEntity) {
         User user = new User();
         BeanUtils.copyProperties(userEntity, user);
-        user.setRole(userEntity.getRole().toString());
+        user.setRole(userEntity.getRole().name());
         user.setPassword(null);
         return user;
     }

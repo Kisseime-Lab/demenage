@@ -1,5 +1,7 @@
 package com.startup.demenage.security;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
@@ -27,6 +29,9 @@ public class JwtUtil {
 
     public String extractUsername(DecodedJWT jwt) {
         return jwt.getSubject();
+    }
+    public boolean isTokenExpired(DecodedJWT jwt) {
+        return jwt.getExpiresAt().before(new Date());
     }
 
     public String extractRole(DecodedJWT jwt) {
