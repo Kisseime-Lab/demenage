@@ -71,8 +71,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity updateUser(User user) {
-        UserEntity existingUserEntity = this.findUserByEmail(user.getUsername(), null);
+    public UserEntity updateUser(User user, String email) {
+        UserEntity existingUserEntity = this.findUserByEmail(email, null);
         UserEntity userEntity = this.toEntity(user);
         if (!Objects.equals(existingUserEntity.isDeleted(), userEntity.isDeleted())) {
             userEntity.setDeleted(true);
@@ -149,12 +149,10 @@ public class UserServiceImpl implements UserService {
         final String uname = email.trim();
         Optional<UserEntity> oUserEntity = repository.findByUsername(uname);
         UserEntity userEntity;
-        // userEntity = oUserEntity.orElseThrow(
-        //         () -> new UsernameNotFoundException(String.format("Given user(%s) not found.", uname)));
-        // if (Objects.isNull(byAdmin) && userEntity.isDeleted()) {
-        //     throw new UsernameNotFoundException(String.format("Given user(%s) not found.", uname));
-        // }
         userEntity = oUserEntity.orElse(null);
+        if (Objects.isNull(byAdmin) && userEntity.isDeleted()) {
+            return null;
+        }
         return userEntity;
     }
 
@@ -180,7 +178,8 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(userEntity)) {
             return new PasswordValidated().passwordValidated(false);
         }
-        return new PasswordValidated().passwordValidated(userEntity.getPassword().equals(bCryptPasswordEncoder.encode(inputs.getPassword())));
+        return new PasswordValidated().passwordValidated(
+            bCryptPasswordEncoder.matches(inputs.getPassword(), userEntity.getPassword()));
     }
 
     private String createRefreshToken(UserEntity user) {

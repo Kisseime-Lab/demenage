@@ -13,6 +13,9 @@ import com.startup.demenage.model.User;
 public class UserDto {
 
     public User toModel(UserEntity userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
         User user = new User();
         BeanUtils.copyProperties(userEntity, user);
         user.setRole(userEntity.getRole().name());

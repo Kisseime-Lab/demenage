@@ -17,7 +17,7 @@ public interface UserService {
     Optional<SignedInUser> getAccessToken(RefreshToken refToken);
     void removeRefreshToken(String refreshToken);
     UserEntity toEntity(User user);
-    UserEntity updateUser(User user);
+    UserEntity updateUser(User user, String email);
     void deleteUser(String email, String byAdmin);
     UserEntity getUserById(String id, String byAdmin);
     PasswordValidated verifyPassword(InputPassword inputs);

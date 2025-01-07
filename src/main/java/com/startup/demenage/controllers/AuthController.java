@@ -87,7 +87,7 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<User> updateUser(@Valid String email, @Valid String byAdmin, @Valid User user)
             throws Exception {
-            return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.updateUser(user)));
+            return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.updateUser(user, email)));
     }
 
     @Override
