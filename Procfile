@@ -1,1 +1,1 @@
-web: java -jar target/demenage-0.0.1-SNAPSHOT.jar
+web: java -jar build/libs/demenage-0.0.1-SNAPSHOT.jar
