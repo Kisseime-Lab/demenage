@@ -1,0 +1,20 @@
+{
+    "library": "spring-boot",
+    "dateLibrary": "java8",
+    "hideGenerationTimestamp": true,
+    "modelPackage": "com.startup.demenage.model",
+    "apiPackage": "com.startup.demenage",
+    "invokerPackage": "com.startup.demenage",
+    "serializableModel": true,
+    "useTags": true,
+    "useGzipFeature" : true,
+    "hateoas": true,
+    "unhandledException": true,
+    "useSpringBoot3": true,
+    "useSwaggerUI": true,
+    "importMappings": {
+      "ResourceSupport":"org.springframework.hateoas.RepresentationModel",
+      "Link": "org.springframework.hateoas.Link"
+    }
+  }
+  

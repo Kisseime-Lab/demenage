@@ -1,0 +1,610 @@
+openapi: 3.0.3
+
+info:
+  title: Demenage
+  version: 1.0.0
+
+tags:
+  - name: Annonce
+  - name: Offre
+  - name: User
+paths:
+  /api/v1/annonces:
+    post:
+      tags:
+        - Annonce
+      summary: create an annonce
+      description: create an annonce
+      operationId: createAnnonce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Annonce"
+      responses:
+        201:
+          description: created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+    get:
+      tags:
+        - Annonce
+      operationId: getLatestAnnonce
+      parameters:
+        - name: city_depart
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: city_arrivee
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/v1/annonce/{id}:
+    get:
+      tags:
+        - Annonce
+      operationId: getAnnonceById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+        400:
+          description: error when fetching annonce
+    put:
+      tags:
+        - Annonce
+      operationId: updateAnnonce
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Annonce'
+      responses:
+        200:
+          description: updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annonce'
+        400:
+          description: error when updating annonce
+    delete:
+      tags:
+        - Annonce
+      operationId: deleteAnnonce
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: deleted successfully
+        400:
+          description: error when deleting annonce
+  /api/v1/offres:
+    post:
+      tags:
+        - Offre
+      description: create an Offre
+      operationId: addUpdateOffre
+      summary: create an Offre
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Offre"
+      responses:
+        201:
+          description: Created Offre
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error when creating an offer
+    get:
+      tags:
+        - Offre
+      operationId: getOffreByAnnonceId
+      description: get all Offers of a specific announce
+      summary: get all Offers of a specific announce
+      parameters:
+        - name: annonce_id
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: author_id
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200: 
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/v1/offre/{id}:
+    get:
+      tags:
+        - Offre
+      operationId: getOffreById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200: 
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error when getting
+    put:
+      tags:
+        - Offre
+      operationId: updateOffre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offre"
+        400:
+          description: error
+    delete:
+      tags:
+        - Offre
+      operationId: deleteOffre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: offer deleted
+        400:
+          description: error when deleting an offer
+
+  /api/v1/users:
+    post:
+      tags:
+        - User
+      summary: Signup the a new customer (user)
+      description: Creates a new customer (user)
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: For successful user creation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+    get:
+      tags:
+        - User
+      summary: get user by email
+      description: get user by email
+      operationId: getUserbyEmailOrId
+      parameters:
+        - name: email
+          in: query
+          schema:
+            type: string
+            default: ""
+        - name: user_id
+          in: query
+          schema:
+            type: string
+            default: ""
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: get successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      tags:
+        - User
+      summary: update an user
+      description: update an user
+      operationId: updateUser
+      parameters:
+        - name: email
+          in: query
+          schema:
+            type: string
+            default: ""
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: update successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: error when updating
+    delete:
+      tags:
+        - User
+      summary: delete an user
+      description: delete an user
+      operationId: deleteUser
+      parameters:
+        - name: email
+          in: query
+          schema:
+            type: string
+            default: ""
+        - name: byAdmin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: delete successfully
+        400:
+          description: error when deleting
+  /api/v1/auth/token:
+    post:
+      tags:
+        - User
+      summary: Signin the customer (user)
+      description: Generates the JWT and refresh token
+      operationId: signIn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInReq'
+      responses:
+        200:
+          description: Returns the access and refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+    delete:
+      tags:
+        - User
+      summary: Signouts the customer (user)
+      description: Signouts the customer (user).
+      operationId: signOut
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        202:
+          description: Accepts the request for logout.
+  /api/v1/verify-password:
+    post:
+      tags:
+        - User
+      operationId: verifyPassword
+      summary: verify password
+      description: verify password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputPassword'
+      responses:
+        200:
+          description: checked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordValidated"
+        400:
+          description: error
+
+  /api/v1/auth/token/refresh:
+    post:
+      tags:
+        - User
+      summary: Provides new JWT based on valid refresh token.
+      description: Provides JWT based on valid refresh token.
+      operationId: getAccessToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          description: For successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+
+components:
+  schemas:
+    Annonce:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          default: ""
+        titre:
+          type: string
+          default: ""
+        departure:
+          $ref: "#/components/schemas/Adresse"
+        destination:
+          $ref: "#/components/schemas/Adresse"
+        photos:
+          type: array
+          items:
+            type: string
+        distance:
+          type: number
+        prix:
+          type: number
+        author:
+          type: string
+        open:
+          type: boolean
+        offres:
+          type: number
+          default: number
+        date:
+          type: string
+        deleted:
+          type: boolean
+        deletedAt:
+          type: string
+
+    Adresse:
+      type: object
+      properties:
+        city:
+          type: string
+        libelle:
+          type: string
+        zipCode:
+          type: string
+        deleted:
+          type: boolean
+        deletedAt:
+          type: string
+        
+    Offre:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          default: ""
+        prix:
+          type: number
+        author:
+          type: string
+        annonceId:
+          type: string
+        status:
+          type: string
+          enum:
+            - REFUSED
+            - ACCEPTED
+            - PENDING
+        date:
+          type: string
+        deleted:
+          type: boolean
+        deletedAt:
+          type: string
+    SignedInUser:
+      description: Signed-in user information
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+        accessToken:
+          description: JWT Token aka access token
+          type: string
+        username:
+          description: User Name
+          type: string
+        userId:
+          description: User Identifier
+          type: string
+        role:
+          type: string
+    
+    SignInReq:
+      description: Request body for Sign-in
+      type: object
+      properties:
+        username:
+          description: username of the User
+          type: string
+        password:
+          description: password of the User
+          type: string
+
+    RefreshToken:
+      description: Contains the refresh token
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+        emailValidated:
+          type: boolean
+        deleted:
+          type: boolean
+        deletedAt:
+          type: string
+        image:
+          type: string
+        createdAt:
+          type: string
+    InputPassword:
+      type: object
+      properties:
+        password:
+          type: string
+        email:
+          type: string
+    PasswordValidated:
+      type: object
+      properties:
+        passwordValidated:
+          type: boolean

@@ -1,0 +1,77 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.0'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.hidetake.swagger.generator' version '2.19.2'
+}
+
+group = 'com.startup'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+processResources {
+    dependsOn(generateSwaggerCode)
+}
+swaggerSources {
+    def typeMappings = 'URI=URI'
+    def importMappings = 'URI=java.net.URI'
+    eStore {
+        def apiYaml = "${rootDir}/src/main/resources/api/openapi.yaml"
+        def configJson = "${rootDir}/src/main/resources/api/config.json"
+        inputFile = file(apiYaml)
+        def ignoreFile = file("${rootDir}/src/main/resources/api/.openapi-generator-ignore")
+        code {
+            language = 'spring'
+            configFile = file(configJson)
+            rawOptions = ['--ignore-file-override', ignoreFile, '--type-mappings',
+                          typeMappings, '--import-mappings', importMappings] as List<String>
+            components = [models: true, apis: true, supportingFiles: 'ApiUtil.java']
+            dependsOn validation
+        }
+    }
+}
+compileJava.dependsOn swaggerSources.eStore.code
+sourceSets.main.java.srcDir "${swaggerSources.eStore.code.outputDir}/src/main/java"
+sourceSets.main.resources.srcDir "${swaggerSources.eStore.code.outputDir}/src/main/resources"
+
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//swagger
+	swaggerCodegen 'org.openapitools:openapi-generator-cli:6.2.1'
+    compileOnly 'io.swagger:swagger-annotations:1.6.4'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+	implementation 'io.springfox:springfox-oas:3.0.0'
+
+    implementation 'com.google.firebase:firebase-admin:9.4.2'
+
+
+	//swagger ends
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:4.3.0'
+    
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j:9.0.0'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
