@@ -1,5 +1,11 @@
 package com.startup.demenage.controllers;
 
+import static org.springframework.http.ResponseEntity.accepted;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
+
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -20,25 +26,17 @@ import com.startup.demenage.service.serviceImpl.UserServiceImpl;
 
 import jakarta.validation.Valid;
 
-import static org.springframework.http.ResponseEntity.accepted;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.http.ResponseEntity.status;
-
-import java.util.Objects;
-
 @RestController
 public class AuthController implements UserApi {
 
     private final UserService service;
     private final PasswordEncoder passwordEncoder;
     private final UserDto userDto;
-    private final UserServiceImpl userServiceImpl;
 
-    public AuthController(UserService service, PasswordEncoder passwordEncoder, UserDto userDto, UserServiceImpl userServiceImpl) {
+    public AuthController(UserService service, PasswordEncoder passwordEncoder, UserDto userDto) {
         this.service = service;
         this.passwordEncoder = passwordEncoder;
         this.userDto = userDto;
-        this.userServiceImpl = userServiceImpl;
     }
 
     @Override
@@ -65,14 +63,14 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<User> getUserbyEmailOrId(String email, String user_id, String byAdmin) throws Exception {
         if (Objects.nonNull(user_id) && !user_id.isEmpty()) {
-            return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.getUserById(user_id, byAdmin)));
+            return status(HttpStatus.OK).body(userDto.toModel(service.getUserById(user_id, byAdmin)));
         }
-        return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.findUserByEmail(email, byAdmin)));
+        return status(HttpStatus.OK).body(userDto.toModel(service.findUserByEmail(email, byAdmin)));
     }
 
     @Override
     public ResponseEntity<Void> deleteUser(String email, String byAdmin) throws Exception {
-        userServiceImpl.deleteUser(email, byAdmin);
+        service.deleteUser(email, byAdmin);
         return status(HttpStatus.OK).build();
     }
 
@@ -87,7 +85,7 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<User> updateUser(@Valid String email, @Valid String byAdmin, @Valid User user)
             throws Exception {
-            return status(HttpStatus.OK).body(userDto.toModel(userServiceImpl.updateUser(user, email)));
+            return status(HttpStatus.OK).body(userDto.toModel(service.updateUser(user, email)));
     }
 
     @Override
