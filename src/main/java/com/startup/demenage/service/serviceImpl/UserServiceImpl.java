@@ -103,14 +103,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private SignedInUser createSignedInUser(UserEntity userEntity) {
-        String token =
-                tokenManager.create(
-                        org.springframework.security.core.userdetails.User.builder()
-                                .username(userEntity.getUsername())
-                                .password(userEntity.getPassword())
-                                .authorities(
-                                        Objects.nonNull(userEntity.getRole()) ? userEntity.getRole().name() : "")
-                                .build());
+        String token = tokenManager.create(
+                org.springframework.security.core.userdetails.User.builder()
+                        .username(userEntity.getUsername())
+                        .password(userEntity.getPassword())
+                        .authorities(
+                                Objects.nonNull(userEntity.getRole()) ? userEntity.getRole().name() : "")
+                        .build());
         return new SignedInUser()
                 .username(userEntity.getUsername())
                 .role(userEntity.getRole().name())
@@ -120,13 +119,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<SignedInUser> getAccessToken(RefreshToken refreshToken) {
-        // You may add an additional validation for time that would remove/invalidate the refresh token
+        // You may add an additional validation for time that would remove/invalidate
+        // the refresh token
         return userTokenRepository
                 .findByRefreshToken(refreshToken.getRefreshToken())
                 .map(
-                        ut ->
-                                Optional.of(
-                                        createSignedInUser(ut.getUser()).refreshToken(refreshToken.getRefreshToken())))
+                        ut -> Optional.of(
+                                createSignedInUser(ut.getUser()).refreshToken(refreshToken.getRefreshToken())))
                 .orElseThrow(() -> new RuntimeException("Invalid token."));
     }
 
@@ -150,12 +149,11 @@ public class UserServiceImpl implements UserService {
         Optional<UserEntity> oUserEntity = repository.findByUsername(uname);
         UserEntity userEntity;
         userEntity = oUserEntity.orElse(null);
-        if (Objects.isNull(byAdmin) && userEntity.isDeleted()) {
+        if (userEntity == null || (Objects.isNull(byAdmin) && Objects.nonNull(userEntity) && userEntity.isDeleted())) {
             return null;
         }
         return userEntity;
     }
-
 
     @Override
     public UserEntity toEntity(User user) {
@@ -179,7 +177,7 @@ public class UserServiceImpl implements UserService {
             return new PasswordValidated().passwordValidated(false);
         }
         return new PasswordValidated().passwordValidated(
-            bCryptPasswordEncoder.matches(inputs.getPassword(), userEntity.getPassword()));
+                bCryptPasswordEncoder.matches(inputs.getPassword(), userEntity.getPassword()));
     }
 
     private String createRefreshToken(UserEntity user) {
@@ -198,7 +196,7 @@ public class UserServiceImpl implements UserService {
 
         public static String randomKey(int length) {
             return String.format(
-                            "%" + length + "s", new BigInteger(length * 5 /*base 32,2^5*/, random).toString(32))
+                    "%" + length + "s", new BigInteger(length * 5 /* base 32,2^5 */, random).toString(32))
                     .replace('\u0020', '0');
         }
     }
