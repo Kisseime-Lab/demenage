@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 @Controller
 public class AnnonceController implements AnnonceApi {
 
-    private final AnnonceService service; 
+private final AnnonceService service; 
     private final AnnonceDto annonceDto;
 
     public AnnonceController(AnnonceService service, AnnonceDto annonceDto) {
