@@ -48,7 +48,7 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<SignedInUser> signIn(@Valid SignInReq signInReq) {
         UserEntity userEntity = service.findUserByEmail(signInReq.getUsername(), null);
-        if (passwordEncoder.matches(signInReq.getPassword(), userEntity.getPassword())) {
+        if (Objects.nonNull(userEntity) && passwordEncoder.matches(signInReq.getPassword(), userEntity.getPassword())) {
             return ok(service.getSignedInUser(userEntity));
         }
         throw new InsufficientAuthenticationException("Unauthorized.");
