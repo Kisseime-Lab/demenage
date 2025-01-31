@@ -7,8 +7,9 @@ import org.springframework.data.repository.CrudRepository;
 import com.startup.demenage.entity.OffreEntity;
 import java.util.List;
 
-
 public interface OffreRepository extends CrudRepository<OffreEntity, String> {
-    Page<OffreEntity> findByAnnonceId(String annonceId, Pageable pageable);
+    Page<OffreEntity> findByAnnonceIdContainingAndAuthorContaining(String annonceId, String authorId,
+            Pageable pageable);
+
     Page<OffreEntity> findByAuthor(String author, Pageable pageable);
 }

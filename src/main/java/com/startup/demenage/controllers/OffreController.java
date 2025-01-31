@@ -31,14 +31,12 @@ public class OffreController implements OffreApi {
         HttpStatus status = Objects.isNull(offre.getId()) ? HttpStatus.CREATED : HttpStatus.OK;
         return status(status).body(offreDto.toModel(service.addUpdateOffre(offre)));
     }
-    
 
     @Override
     public ResponseEntity<Void> deleteOffre(String id, @Valid String byAdmin) throws Exception {
         service.deleteOffre(id);
         return status(HttpStatus.OK).build();
     }
-
 
     @Override
     public ResponseEntity<Offre> getOffreById(String id, @Valid String byAdmin) throws Exception {
@@ -55,5 +53,5 @@ public class OffreController implements OffreApi {
     public ResponseEntity<Offre> updateOffre(String id, @Valid String byAdmin) throws Exception {
         return OffreApi.super.updateOffre(id, byAdmin);
     }
-    
+
 }
