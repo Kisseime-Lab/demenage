@@ -180,11 +180,13 @@ paths:
           in: query
           schema:
             type: string
+            default: ""
         - name: author_id
           required: false
           in: query
           schema:
             type: string
+            default: ""
         - name: page
           in: query
           schema:

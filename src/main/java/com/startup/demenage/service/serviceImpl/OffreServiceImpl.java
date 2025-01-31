@@ -52,8 +52,7 @@ public class OffreServiceImpl implements OffreService {
                 }
 
             }
-        }
-        else {
+        } else {
             AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonceId(), null);
             annonceEntity.setOffres(annonceEntity.getOffres() + 1);
             annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
@@ -102,24 +101,35 @@ public class OffreServiceImpl implements OffreService {
     }
 
     @Override
-    public Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size, String byAdmin) {
+    public Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size,
+            String byAdmin) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        if (Objects.nonNull(annonceId) || !Objects.equals(annonceId, "")) {
-            Page<OffreEntity> result = repository.findByAnnonceId(annonceId, pageable);
-            if (Objects.isNull(byAdmin)) {
-                List<OffreEntity> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
-                return new PageImpl<>(offres, pageable, offres.size());
-            }
-            return result;
+        // if (Objects.nonNull(annonceId) || !Objects.equals(annonceId, "")) {
+        // Page<OffreEntity> result =
+        // repository.findByAnnonceIdAndAuthorContaining(annonceId, authorId, pageable);
+        // if (Objects.isNull(byAdmin)) {
+        // List<OffreEntity> offres = result.getContent().stream().filter(a ->
+        // !a.isDeleted()).toList();
+        // return new PageImpl<>(offres, pageable, offres.size());
+        // }
+        // return result;
+        // }
+        Page<OffreEntity> result = repository.findByAnnonceIdContainingAndAuthorContaining(annonceId, authorId,
+                pageable);
+        if (Objects.isNull(byAdmin)) {
+            List<OffreEntity> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
+            return new PageImpl<>(offres, pageable, offres.size());
         }
-        if (Objects.nonNull(authorId) && !Objects.equals(authorId, "")) {
-            Page<OffreEntity> result = repository.findByAuthor(authorId, pageable);
-            if (Objects.isNull(byAdmin)) {
-                List<OffreEntity> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
-                return new PageImpl<>(offres, pageable, offres.size());
-            }
-            return result;
-        }
+        return result;
+        // if (Objects.nonNull(authorId) && !Objects.equals(authorId, "")) {
+        // Page<OffreEntity> result = repository.findByAuthor(authorId, pageable);
+        // if (Objects.isNull(byAdmin)) {
+        // List<OffreEntity> offres = result.getContent().stream().filter(a ->
+        // !a.isDeleted()).toList();
+        // return new PageImpl<>(offres, pageable, offres.size());
+        // }
+        // return result;
+        // }
         return null;
     }
 }
