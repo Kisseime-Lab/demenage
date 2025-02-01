@@ -17,10 +17,12 @@ import org.springframework.stereotype.Service;
 import com.startup.demenage.dto.AnnonceDto;
 import com.startup.demenage.entity.AnnonceEntity;
 import com.startup.demenage.entity.OffreEntity;
+import com.startup.demenage.entity.UserEntity;
 import com.startup.demenage.model.Offre;
 import com.startup.demenage.repository.OffreRepository;
 import com.startup.demenage.service.AnnonceService;
 import com.startup.demenage.service.OffreService;
+import com.startup.demenage.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -32,28 +34,31 @@ public class OffreServiceImpl implements OffreService {
     private final OffreRepository repository;
     private final AnnonceService annonceService;
     private final AnnonceDto annonceDto;
+    private final UserService userService;
 
-    public OffreServiceImpl(OffreRepository repository, AnnonceService annonceService, AnnonceDto annoncedto) {
+    public OffreServiceImpl(OffreRepository repository, AnnonceService annonceService, AnnonceDto annoncedto,
+            UserService userService) {
         this.repository = repository;
         this.annonceService = annonceService;
         this.annonceDto = annoncedto;
+        this.userService = userService;
     }
 
     @Override
     public OffreEntity addUpdateOffre(Offre offre) {
         // TODO Auto-generated method stub
         OffreEntity offreEntity = this.toEntity(offre);
-        if (Objects.nonNull(offre.getId()) && !Objects.equals(offre.getId(), "")) {
-            Optional<OffreEntity> exOptional = repository.findById(offre.getId());
-            if (exOptional.isPresent()) {
-                offreEntity.setId(exOptional.get().getId());
-                if (!Objects.equals(offreEntity.isDeleted(), exOptional.get().isDeleted())) {
-                    offreEntity.setDeletedAt(LocalDateTime.now().toString());
-                }
-
+        List<OffreEntity> exAnnonceEntity = repository
+                .findByAnnonce_IdContainingAndAuthor_IdContaining(offre.getAnnonce().getId(),
+                        offre.getAuthor().getId(), Pageable.ofSize(1))
+                .getContent();
+        if (exAnnonceEntity.size() > 0) {
+            offreEntity.setId(exAnnonceEntity.get(0).getId());
+            if (!Objects.equals(offreEntity.isDeleted(), exAnnonceEntity.get(0).isDeleted())) {
+                offreEntity.setDeletedAt(LocalDateTime.now().toString());
             }
         } else {
-            AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonceId(), null);
+            AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
             annonceEntity.setOffres(annonceEntity.getOffres() + 1);
             annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         }
@@ -77,7 +82,7 @@ public class OffreServiceImpl implements OffreService {
         if (optional.isEmpty()) {
             throw new EntityNotFoundException("Offre with id: " + id + " not found");
         }
-        AnnonceEntity annonceEntity = annonceService.findAnnonce(optional.get().getAnnonceId(), "true");
+        AnnonceEntity annonceEntity = annonceService.findAnnonce(optional.get().getAnnonce().getId(), "true");
         annonceEntity.setOffres(annonceEntity.getOffres() - 1);
         annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         repository.delete(optional.get());
@@ -97,11 +102,15 @@ public class OffreServiceImpl implements OffreService {
         if (Objects.isNull(offre.getId()) || Objects.equals(offre.getId(), "")) {
             offreEntity.setId(newId);
         }
+        AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
+        offreEntity.setAnnonce(annonceEntity);
+        UserEntity userEntity = userService.getUserById(offre.getAuthor().getId(), null);
+        offreEntity.setAuthor(userEntity);
         return offreEntity;
     }
 
     @Override
-    public Page<OffreEntity> getOffreByAnnonceId(String annonceId, String authorId, int page, int size,
+    public Page<OffreEntity> getOffreByAnnonceIdAndAuthorId(String annonceId, String authorId, int page, int size,
             String byAdmin) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         // if (Objects.nonNull(annonceId) || !Objects.equals(annonceId, "")) {
@@ -114,7 +123,7 @@ public class OffreServiceImpl implements OffreService {
         // }
         // return result;
         // }
-        Page<OffreEntity> result = repository.findByAnnonceIdContainingAndAuthorContaining(annonceId, authorId,
+        Page<OffreEntity> result = repository.findByAnnonce_IdContainingAndAuthor_IdContaining(annonceId, authorId,
                 pageable);
         if (Objects.isNull(byAdmin)) {
             List<OffreEntity> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
