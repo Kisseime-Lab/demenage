@@ -6,18 +6,23 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
 import com.startup.demenage.entity.AnnonceEntity;
 import com.startup.demenage.model.Annonce;
+import com.startup.demenage.model.User;
 
 @Component
-public class AnnonceDto {
+final public class AnnonceDto {
 
-    private AdresseDto adresseDto;
+    private final AdresseDto adresseDto;
+    private final UserDto userDto;
 
-    public AnnonceDto(AdresseDto adresseDto) {
+    public AnnonceDto(AdresseDto adresseDto, UserDto userDto) {
         this.adresseDto = adresseDto;
+        this.userDto = userDto;
     }
 
     public Annonce toModel(AnnonceEntity annonceEntity) {
@@ -29,10 +34,12 @@ public class AnnonceDto {
         annonce.setDeparture(adresseDto.toModel(annonceEntity.getDeparture()));
         annonce.setDestination(adresseDto.toModel(annonceEntity.getDestination()));
         annonce.setOffres(BigDecimal.valueOf(annonceEntity.getOffres()));
+        User user = userDto.toModel(annonceEntity.getAuthor());
+        annonce.setAuthor(user);
         return annonce;
     }
 
-    public List<Annonce> toListModel(List<AnnonceEntity> userEntityList) {
-        return userEntityList.stream().map(this::toModel).toList();
+    public Page<Annonce> toListModel(Page<AnnonceEntity> annonces) {
+        return annonces.map(a -> toModel(a));
     }
 }
