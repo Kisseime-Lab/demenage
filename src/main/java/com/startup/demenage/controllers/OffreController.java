@@ -46,7 +46,9 @@ public class OffreController implements OffreApi {
     @Override
     public ResponseEntity<Object> getOffreByAnnonceId(@Valid String annonceId, @Valid String authorId,
             @Valid Integer page, @Valid Integer size, @Valid String byAdmin) throws Exception {
-        return status(HttpStatus.OK).body(service.getOffreByAnnonceId(annonceId, authorId, page, size, byAdmin));
+        return status(HttpStatus.OK)
+                .body(offreDto.toListModel(
+                        service.getOffreByAnnonceIdAndAuthorId(annonceId, authorId, page, size, byAdmin)));
     }
 
     @Override
