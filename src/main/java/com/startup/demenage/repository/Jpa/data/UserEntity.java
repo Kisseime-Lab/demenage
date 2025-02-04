@@ -1,8 +1,10 @@
-package com.startup.demenage.entity;
+package com.startup.demenage.repository.Jpa.data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import com.startup.demenage.domain.RoleEnum;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,6 +26,7 @@ public class UserEntity {
     private String image;
     private String createdAt;
     private String phone;
+
     public String getPhone() {
         return phone;
     }
@@ -31,9 +34,10 @@ public class UserEntity {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
     private boolean deleted = false;
     private String deletedAt;
-    
+
     public boolean isDeleted() {
         return deleted;
     }
@@ -49,6 +53,7 @@ public class UserEntity {
     public void setDeletedAt(String deletedAt) {
         this.deletedAt = deletedAt;
     }
+
     @Enumerated(EnumType.STRING)
     private RoleEnum role = RoleEnum.CUSTOMER;
     @OneToMany(orphanRemoval = true, mappedBy = "user")

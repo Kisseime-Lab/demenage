@@ -1,4 +1,4 @@
-package com.startup.demenage.entity;
+package com.startup.demenage.repository.Jpa.data;
 
 import java.time.LocalDateTime;
 import java.util.List;
