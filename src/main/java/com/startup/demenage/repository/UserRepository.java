@@ -2,10 +2,18 @@ package com.startup.demenage.repository;
 
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.startup.demenage.domain.UserDomain;
 
-import com.startup.demenage.entity.UserEntity;
+public interface UserRepository {
 
-public interface UserRepository extends JpaRepository<UserEntity, String> {
-    Optional<UserEntity> findByUsername(String username);
+    Optional<UserDomain> findByUsername(String username);
+
+    UserDomain save(UserDomain user);
+
+    void delete(UserDomain user);
+
+    void deleteByUserId(String id);
+
+    Optional<UserDomain> findById(String id);
+
 }

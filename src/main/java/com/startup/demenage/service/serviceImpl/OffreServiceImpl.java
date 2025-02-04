@@ -14,10 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import com.startup.demenage.domain.AnnonceDomain;
+import com.startup.demenage.domain.OffreDomain;
+import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.dto.AnnonceDto;
-import com.startup.demenage.entity.AnnonceEntity;
-import com.startup.demenage.entity.OffreEntity;
-import com.startup.demenage.entity.UserEntity;
 import com.startup.demenage.model.Offre;
 import com.startup.demenage.repository.OffreRepository;
 import com.startup.demenage.service.AnnonceService;
@@ -45,20 +45,20 @@ public class OffreServiceImpl implements OffreService {
     }
 
     @Override
-    public OffreEntity addUpdateOffre(Offre offre) {
+    public OffreDomain addUpdateOffre(Offre offre) {
         // TODO Auto-generated method stub
-        OffreEntity offreEntity = this.toEntity(offre);
-        List<OffreEntity> exAnnonceEntity = repository
+        OffreDomain offreEntity = this.toEntity(offre);
+        List<OffreDomain> exAnnonceDomain = repository
                 .findByAnnonce_IdContainingAndAuthor_IdContaining(offre.getAnnonce().getId(),
                         offre.getAuthor().getId(), Pageable.ofSize(1))
                 .getContent();
-        if (exAnnonceEntity.size() > 0) {
-            offreEntity.setId(exAnnonceEntity.get(0).getId());
-            if (!Objects.equals(offreEntity.isDeleted(), exAnnonceEntity.get(0).isDeleted())) {
+        if (exAnnonceDomain.size() > 0) {
+            offreEntity.setId(exAnnonceDomain.get(0).getId());
+            if (!Objects.equals(offreEntity.isDeleted(), exAnnonceDomain.get(0).isDeleted())) {
                 offreEntity.setDeletedAt(LocalDateTime.now().toString());
             }
         } else {
-            AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
+            AnnonceDomain annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
             annonceEntity.setOffres(annonceEntity.getOffres() + 1);
             annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         }
@@ -66,8 +66,8 @@ public class OffreServiceImpl implements OffreService {
     }
 
     @Override
-    public OffreEntity findById(String id) {
-        Optional<OffreEntity> optional = repository.findById(id);
+    public OffreDomain findById(String id) {
+        Optional<OffreDomain> optional = repository.findById(id);
         if (!optional.isPresent()) {
             throw new EntityNotFoundException("Offre not found");
         }
@@ -78,20 +78,20 @@ public class OffreServiceImpl implements OffreService {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteOffre(String id) {
         // TODO Auto-generated method stub
-        Optional<OffreEntity> optional = repository.findById(id);
+        Optional<OffreDomain> optional = repository.findById(id);
         if (optional.isEmpty()) {
             throw new EntityNotFoundException("Offre with id: " + id + " not found");
         }
-        AnnonceEntity annonceEntity = annonceService.findAnnonce(optional.get().getAnnonce().getId(), "true");
+        AnnonceDomain annonceEntity = annonceService.findAnnonce(optional.get().getAnnonce().getId(), "true");
         annonceEntity.setOffres(annonceEntity.getOffres() - 1);
         annonceService.addUpdateAnnonce(annonceDto.toModel(annonceEntity));
         repository.delete(optional.get());
     }
 
     @Override
-    public OffreEntity toEntity(Offre offre) {
+    public OffreDomain toEntity(Offre offre) {
         // TODO Auto-generated method stub
-        OffreEntity offreEntity = new OffreEntity();
+        OffreDomain offreEntity = new OffreDomain();
         String newId = offreEntity.getId();
         BeanUtils.copyProperties(offre, offreEntity);
         offreEntity.setPrix(offre.getPrix().doubleValue());
@@ -102,38 +102,38 @@ public class OffreServiceImpl implements OffreService {
         if (Objects.isNull(offre.getId()) || Objects.equals(offre.getId(), "")) {
             offreEntity.setId(newId);
         }
-        AnnonceEntity annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
+        AnnonceDomain annonceEntity = annonceService.findAnnonce(offre.getAnnonce().getId(), null);
         offreEntity.setAnnonce(annonceEntity);
-        UserEntity userEntity = userService.getUserById(offre.getAuthor().getId(), null);
+        UserDomain userEntity = userService.getUserById(offre.getAuthor().getId(), null);
         offreEntity.setAuthor(userEntity);
         return offreEntity;
     }
 
     @Override
-    public Page<OffreEntity> getOffreByAnnonceIdAndAuthorId(String annonceId, String authorId, int page, int size,
+    public Page<OffreDomain> getOffreByAnnonceIdAndAuthorId(String annonceId, String authorId, int page, int size,
             String byAdmin) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         // if (Objects.nonNull(annonceId) || !Objects.equals(annonceId, "")) {
-        // Page<OffreEntity> result =
+        // Page<OffreDomain> result =
         // repository.findByAnnonceIdAndAuthorContaining(annonceId, authorId, pageable);
         // if (Objects.isNull(byAdmin)) {
-        // List<OffreEntity> offres = result.getContent().stream().filter(a ->
+        // List<OffreDomain> offres = result.getContent().stream().filter(a ->
         // !a.isDeleted()).toList();
         // return new PageImpl<>(offres, pageable, offres.size());
         // }
         // return result;
         // }
-        Page<OffreEntity> result = repository.findByAnnonce_IdContainingAndAuthor_IdContaining(annonceId, authorId,
+        Page<OffreDomain> result = repository.findByAnnonce_IdContainingAndAuthor_IdContaining(annonceId, authorId,
                 pageable);
         if (Objects.isNull(byAdmin)) {
-            List<OffreEntity> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
+            List<OffreDomain> offres = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
             return new PageImpl<>(offres, pageable, offres.size());
         }
         return result;
         // if (Objects.nonNull(authorId) && !Objects.equals(authorId, "")) {
-        // Page<OffreEntity> result = repository.findByAuthor(authorId, pageable);
+        // Page<OffreDomain> result = repository.findByAuthor(authorId, pageable);
         // if (Objects.isNull(byAdmin)) {
-        // List<OffreEntity> offres = result.getContent().stream().filter(a ->
+        // List<OffreDomain> offres = result.getContent().stream().filter(a ->
         // !a.isDeleted()).toList();
         // return new PageImpl<>(offres, pageable, offres.size());
         // }

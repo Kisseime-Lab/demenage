@@ -2,13 +2,14 @@ package com.startup.demenage.repository;
 
 import java.util.Optional;
 
-import org.springframework.data.repository.CrudRepository;
+import com.startup.demenage.domain.UserTokenDomain;
 
-import com.startup.demenage.entity.UserTokenEntity;
+public interface UserTokenRepository {
+        Optional<UserTokenDomain> findByRefreshToken(String refreshToken);
 
-public interface UserTokenRepository extends
-        CrudRepository<UserTokenEntity, String> {
-    Optional<UserTokenEntity> findByRefreshToken
-            (String refreshToken);
-    Optional<UserTokenEntity> deleteByUserId(String userId);
+        void deleteByUserId(String userId);
+
+        void save(UserTokenDomain userTokenDomain);
+
+        void delete(UserTokenDomain userTokenDomain);
 }

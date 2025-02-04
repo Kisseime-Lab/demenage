@@ -481,7 +481,7 @@ components:
         prix:
           type: number
         author:
-          type: string
+          $ref: "#/components/schemas/User"
         open:
           type: boolean
         offres:
@@ -519,9 +519,9 @@ components:
         prix:
           type: number
         author:
-          type: string
-        annonceId:
-          type: string
+          $ref: "#/components/schemas/User"
+        annonce:
+          $ref: "#/components/schemas/Annonce"
         status:
           type: string
           enum:

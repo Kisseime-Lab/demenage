@@ -63,7 +63,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.startup.demenage.filters.FirebaseTokenFilter;
 import com.startup.demenage.utils.CustomPreAuthenticatedUserDetailsService;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -102,10 +101,12 @@ public class SecurityConfig {
         this.authenticationConfiguration = aConfiguration;
         this.builder = builder;
     }
+
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // AuthorizationManager<HttpServletRequest> cusAuthenticationManager = new CustomAuthorizationManager();
+        // AuthorizationManager<HttpServletRequest> cusAuthenticationManager = new
+        // CustomAuthorizationManager();
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(csrf -> csrf
@@ -113,10 +114,11 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .cors(withDefaults())
-                .addFilter(firebaseTokenFilter())
-                .addFilterBefore(firebaseTokenFilter(),
-                BearerTokenAuthenticationFilter.class)
-                // .addFilterBefore(new AuthorizationFilter(cusAuthenticationManager), AuthorizationFilter.class)
+                // .addFilter(firebaseTokenFilter())
+                // .addFilterBefore(firebaseTokenFilter(),
+                // BearerTokenAuthenticationFilter.class)
+                // .addFilterBefore(new AuthorizationFilter(cusAuthenticationManager),
+                // AuthorizationFilter.class)
                 .authenticationProvider(customPreAuthenticatedProvider())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
@@ -125,10 +127,10 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(API_URL_PREFIX, HttpMethod.GET.name())).permitAll()
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter())))
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter())))
+                .sessionManagement(
+                        sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 
@@ -142,32 +144,34 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationEventPublisher authenticationEventPublisher
-            (ApplicationEventPublisher applicationEventPublisher) {
+    public AuthenticationEventPublisher authenticationEventPublisher(
+            ApplicationEventPublisher applicationEventPublisher) {
         return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     }
 
     // @Bean
     // @Qualifier("Jwt")
     // public AuthenticationManager authenticationManager(
-    //         AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    //     return authenticationConfiguration.getAuthenticationManager();
+    // AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    // return authenticationConfiguration.getAuthenticationManager();
     // }
 
     // @Bean
     // @Qualifier("Google")
     // @Lazy
-    // public AuthenticationManager googleAuthenticationManager(AuthenticationEventPublisher publisher) throws Exception {
-    //     MyCustomPreAuthenticatedProvider provider = customPreAuthenticatedProvider();
-    //     ProviderManager providerManager = new ProviderManager(provider);
-    //     providerManager.setAuthenticationEventPublisher(publisher);
-    //     return providerManager;
+    // public AuthenticationManager
+    // googleAuthenticationManager(AuthenticationEventPublisher publisher) throws
+    // Exception {
+    // MyCustomPreAuthenticatedProvider provider = customPreAuthenticatedProvider();
+    // ProviderManager providerManager = new ProviderManager(provider);
+    // providerManager.setAuthenticationEventPublisher(publisher);
+    // return providerManager;
     // }
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         PreAuthenticatedAuthenticationProvider provider = customPreAuthenticatedProvider();
-        builder.authenticationProvider(provider); 
+        builder.authenticationProvider(provider);
         return this.authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -214,8 +218,8 @@ public class SecurityConfig {
     public KeyStore keyStore() {
         try {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            InputStream resourceAsStream =
-                    Thread.currentThread().getContextClassLoader().getResourceAsStream(keyStorePath);
+            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(keyStorePath);
             keyStore.load(resourceAsStream, keyStorePassword.toCharArray());
             return keyStore;
         } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {

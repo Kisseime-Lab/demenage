@@ -15,9 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.startup.demenage.entity.RoleEnum;
-import com.startup.demenage.entity.UserEntity;
-import com.startup.demenage.entity.UserTokenEntity;
+import com.startup.demenage.domain.RoleEnum;
+import com.startup.demenage.domain.UserDomain;
+import com.startup.demenage.domain.UserTokenDomain;
 import com.startup.demenage.model.InputPassword;
 import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
@@ -49,8 +49,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity getUserById(String id, String byAdmin) {
-        UserEntity _user = repository.findById(id).orElse(null);
+    public UserDomain getUserById(String id, String byAdmin) {
+        UserDomain _user = repository.findById(id).orElse(null);
         if (_user == null) {
             throw new UsernameNotFoundException("Invalid user.");
         }
@@ -62,47 +62,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<SignedInUser> createUser(User user) {
-        UserEntity _user = this.findUserByEmail(user.getUsername(), null);
+        UserDomain _user = this.findUserByEmail(user.getUsername(), null);
         if (_user != null) {
             throw new RuntimeException("Use different username and email.");
         }
-        UserEntity userEntity = repository.save(toEntity(user));
+        UserDomain userEntity = repository.save(toEntity(user));
         return Optional.of(createSignedUserWithRefreshToken(userEntity));
     }
 
     @Override
-    public UserEntity updateUser(User user, String email) {
-        UserEntity existingUserEntity = this.findUserByEmail(email, null);
-        UserEntity userEntity = this.toEntity(user);
-        if (!Objects.equals(existingUserEntity.isDeleted(), userEntity.isDeleted())) {
+    public UserDomain updateUser(User user, String email) {
+        UserDomain existingUserDomain = this.findUserByEmail(email, null);
+        UserDomain userEntity = this.toEntity(user);
+        if (!Objects.equals(existingUserDomain.isDeleted(), userEntity.isDeleted())) {
             userEntity.setDeleted(true);
             userEntity.setDeletedAt(LocalDateTime.now().toString());
         }
         if (Objects.isNull(userEntity.getPassword())) {
-            userEntity.setPassword(existingUserEntity.getPassword());
+            userEntity.setPassword(existingUserDomain.getPassword());
         }
-        userEntity.setId(existingUserEntity.getId());
+        userEntity.setId(existingUserDomain.getId());
         return repository.save(userEntity);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void deleteUser(String email, String byAdmin) {
-        UserEntity userEntity = this.findUserByEmail(email, byAdmin);
+        UserDomain userEntity = this.findUserByEmail(email, byAdmin);
         repository.delete(userEntity);
     }
 
     @Override
-    public SignedInUser getSignedInUser(UserEntity userEntity) {
+    public SignedInUser getSignedInUser(UserDomain userEntity) {
         userTokenRepository.deleteByUserId(userEntity.getId());
         return createSignedUserWithRefreshToken(userEntity);
     }
 
-    private SignedInUser createSignedUserWithRefreshToken(UserEntity userEntity) {
+    private SignedInUser createSignedUserWithRefreshToken(UserDomain userEntity) {
         return createSignedInUser(userEntity).refreshToken(createRefreshToken(userEntity));
     }
 
-    private SignedInUser createSignedInUser(UserEntity userEntity) {
+    private SignedInUser createSignedInUser(UserDomain userEntity) {
         String token = tokenManager.create(
                 org.springframework.security.core.userdetails.User.builder()
                         .username(userEntity.getUsername())
@@ -141,14 +141,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity findUserByEmail(String email, String byAdmin) {
+    public UserDomain findUserByEmail(String email, String byAdmin) {
         if (Strings.isBlank(email)) {
             throw new UsernameNotFoundException("Invalid user.");
         }
         final String uname = email.trim();
-        Optional<UserEntity> oUserEntity = repository.findByUsername(uname);
-        UserEntity userEntity;
-        userEntity = oUserEntity.orElse(null);
+        Optional<UserDomain> oUserDomain = repository.findByUsername(uname);
+        UserDomain userEntity;
+        userEntity = oUserDomain.orElse(null);
         if (userEntity == null || (Objects.isNull(byAdmin) && Objects.nonNull(userEntity) && userEntity.isDeleted())) {
             return null;
         }
@@ -156,10 +156,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity toEntity(User user) {
-        UserEntity userEntity = new UserEntity();
+    public UserDomain toEntity(User user) {
+        UserDomain userEntity = new UserDomain();
         String newId = userEntity.getId();
-        BeanUtils.copyProperties(user, userEntity, "createdAt");
+        BeanUtils.copyProperties(user, userEntity);
         if (Objects.isNull(user.getId()) || Objects.equals(user.getId(), "")) {
             userEntity.setId(newId);
         }
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PasswordValidated verifyPassword(InputPassword inputs) {
-        UserEntity userEntity = findUserByEmail(inputs.getEmail(), null);
+        UserDomain userEntity = findUserByEmail(inputs.getEmail(), null);
         if (Objects.isNull(userEntity)) {
             return new PasswordValidated().passwordValidated(false);
         }
@@ -180,9 +180,9 @@ public class UserServiceImpl implements UserService {
                 bCryptPasswordEncoder.matches(inputs.getPassword(), userEntity.getPassword()));
     }
 
-    private String createRefreshToken(UserEntity user) {
+    private String createRefreshToken(UserDomain user) {
         String token = RandomHolder.randomKey(128);
-        UserTokenEntity userToken = new UserTokenEntity();
+        UserTokenDomain userToken = new UserTokenDomain();
         userToken.setRefreshToken(token);
         userToken.setUser(user);
         userTokenRepository.save(userToken);

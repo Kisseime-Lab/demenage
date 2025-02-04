@@ -1,15 +1,21 @@
 package com.startup.demenage.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.startup.demenage.entity.AnnonceEntity;
+import com.startup.demenage.domain.AnnonceDomain;
 
-public interface AnnonceRepository extends JpaRepository<AnnonceEntity, String> {
+public interface AnnonceRepository {
+    Optional<AnnonceDomain> findById(String id);
 
-    Page<AnnonceEntity> findByDepartureCityContainingAndDestinationCityContaining(
+    Page<AnnonceDomain> findByAuthor_Id(String id, Pageable pageable);
+
+    AnnonceDomain save(AnnonceDomain annonceEntity);
+
+    void delete(AnnonceDomain aEntity);
+
+    Page<AnnonceDomain> findByDepartureCityContainingAndDestinationCityContaining(
             String cityDepart, String cityDestination, Pageable pageable);
-
-    Page<AnnonceEntity> findByAuthor_Id(String author, Pageable pageable);
 }

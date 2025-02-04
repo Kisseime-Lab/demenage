@@ -5,13 +5,12 @@ import java.util.List;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 import com.google.firebase.auth.FirebaseToken;
-import com.startup.demenage.entity.RoleEnum;
+import com.startup.demenage.domain.RoleEnum;
 
 public class FirebaseAuthenticationToken extends AbstractAuthenticationToken {
 
     private final FirebaseToken firebaseToken;
     private final Object principal;
-
 
     public FirebaseAuthenticationToken(FirebaseToken firebaseToken) {
         super(List.of(RoleEnum.CUSTOMER));
@@ -19,6 +18,7 @@ public class FirebaseAuthenticationToken extends AbstractAuthenticationToken {
         this.principal = firebaseToken.getUid();
         setAuthenticated(true);
     }
+
     @Override
     public Object getCredentials() {
         return firebaseToken;
@@ -28,5 +28,5 @@ public class FirebaseAuthenticationToken extends AbstractAuthenticationToken {
     public Object getPrincipal() {
         return principal;
     }
-    
+
 }

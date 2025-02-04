@@ -9,21 +9,18 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import com.google.cloud.Role;
-import com.startup.demenage.entity.RoleEnum;
+import com.startup.demenage.domain.RoleEnum;
 
 public class MyCustomPreAuthenticatedProvider implements AuthenticationProvider {
 
-    private static final Log logger = LogFactory.getLog(MyCustomPreAuthenticatedProvider.class);
-    private boolean throwExceptionWhenTokenRejected;
+	private static final Log logger = LogFactory.getLog(MyCustomPreAuthenticatedProvider.class);
+	private boolean throwExceptionWhenTokenRejected;
 
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (!supports(authentication.getClass())) {
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+		if (!supports(authentication.getClass())) {
 			return null;
 		}
 		logger.debug(LogMessage.format("PreAuthenticated authentication request: %s", authentication));
@@ -35,17 +32,18 @@ public class MyCustomPreAuthenticatedProvider implements AuthenticationProvider 
 			return null;
 		}
 		// UserDetails userDetails = this.preAuthenticatedUserDetailsService
-		// 	.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
+		// .loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
 		// this.userDetailsChecker.check(userDetails);
-		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(authentication.getPrincipal(),
+		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
+				authentication.getPrincipal(),
 				null, List.of(RoleEnum.CUSTOMER));
 		result.setDetails(authentication.getDetails());
 		return result;
-    }
+	}
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
-    }
-    
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
 }

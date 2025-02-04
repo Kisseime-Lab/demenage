@@ -14,12 +14,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import com.startup.demenage.entity.AdresseEntity;
-import com.startup.demenage.entity.AnnonceEntity;
+import com.startup.demenage.domain.AdresseDomain;
+import com.startup.demenage.domain.AnnonceDomain;
+import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.model.Adresse;
 import com.startup.demenage.model.Annonce;
 import com.startup.demenage.repository.AnnonceRepository;
 import com.startup.demenage.service.AnnonceService;
+import com.startup.demenage.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -28,32 +30,34 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class AnnonceServiceImpl implements AnnonceService {
 
-    private AnnonceRepository repository;
+    private final AnnonceRepository repository;
+    private final UserService uService;
 
-    public AnnonceServiceImpl(AnnonceRepository repository) {
+    public AnnonceServiceImpl(AnnonceRepository repository, UserService uService) {
         this.repository = repository;
+        this.uService = uService;
     }
 
     @Override
-    public AnnonceEntity addUpdateAnnonce(Annonce annonce) {
-        AnnonceEntity annonceEntity = this.toEntity(annonce);
+    public AnnonceDomain addUpdateAnnonce(Annonce annonce) {
+        AnnonceDomain annonceDomain = this.toEntity(annonce);
         if (Objects.nonNull(annonce.getId()) && !Objects.equals(annonce, "")) {
-            Optional<AnnonceEntity> exOptional = repository.findById(annonce.getId());
+            Optional<AnnonceDomain> exOptional = repository.findById(annonce.getId());
             if (exOptional.isPresent()) {
-                annonceEntity.setId(exOptional.get().getId());
-                if (!Objects.equals(annonceEntity.isDeleted(), exOptional.get().isDeleted())) {
-                    annonceEntity.setDeletedAt(LocalDateTime.now().toString());
+                annonceDomain.setId(exOptional.get().getId());
+                if (!Objects.equals(annonceDomain.isDeleted(), exOptional.get().isDeleted())) {
+                    annonceDomain.setDeletedAt(LocalDateTime.now().toString());
                 }
             }
         }
-        return repository.save(annonceEntity);
+        return repository.save(annonceDomain);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteAnnonce(String id, String byAdmin) {
         // TODO Auto-generated method stub
-        Optional<AnnonceEntity> optional = repository.findById(id);
+        Optional<AnnonceDomain> optional = repository.findById(id);
         if (optional.isEmpty()) {
             throw new EntityNotFoundException("Annonce with id: " + id + " not found");
         }
@@ -66,37 +70,37 @@ public class AnnonceServiceImpl implements AnnonceService {
     }
 
     @Override
-    public AnnonceEntity toEntity(Annonce annonce) {
+    public AnnonceDomain toEntity(Annonce annonce) {
         // TODO Auto-generated method stub
-        AnnonceEntity annonceEntity = new AnnonceEntity();
-        String newId = annonceEntity.getId();
-        BeanUtils.copyProperties(annonce, annonceEntity);
+        AnnonceDomain annonceDomain = new AnnonceDomain();
+        String newId = annonceDomain.getId();
+        BeanUtils.copyProperties(annonce, annonceDomain);
         if (Objects.isNull(annonce.getId()) || Objects.equals(annonce.getId(), "")) {
-            annonceEntity.setId(newId);
+            annonceDomain.setId(newId);
         }
-        annonceEntity.setOffres(annonce.getOffres().intValue());
-        annonceEntity.setPrix(annonce.getPrix().doubleValue());
-        annonceEntity.setDistance(annonce.getDistance().doubleValue());
-        annonceEntity.setDate(annonce.getDate());
-        annonceEntity.setDeparture(this.adresseToEntity(annonce.getDeparture()));
-        annonceEntity.setDestination(this.adresseToEntity(annonce.getDestination()));
-        return annonceEntity;
+        annonceDomain.setOffres(annonce.getOffres().intValue());
+        annonceDomain.setPrix(annonce.getPrix().doubleValue());
+        annonceDomain.setDistance(annonce.getDistance().doubleValue());
+        annonceDomain.setDate(annonce.getDate());
+        annonceDomain.setDeparture(this.adresseToEntity(annonce.getDeparture()));
+        annonceDomain.setDestination(this.adresseToEntity(annonce.getDestination()));
+        UserDomain userEntity = uService.getUserById(annonce.getAuthor().getId(), null);
+        annonceDomain.setAuthor(userEntity);
+        return annonceDomain;
     }
 
-    
-
     @Override
-    public AdresseEntity adresseToEntity(Adresse adresse) {
+    public AdresseDomain adresseToEntity(Adresse adresse) {
         // TODO Auto-generated method stub
-        AdresseEntity adresseEntity = new AdresseEntity();
+        AdresseDomain adresseEntity = new AdresseDomain();
         BeanUtils.copyProperties(adresse, adresseEntity);
         return adresseEntity;
     }
 
     @Override
-    public AnnonceEntity findAnnonce(String id, String byAdmin) {
+    public AnnonceDomain findAnnonce(String id, String byAdmin) {
         // TODO Auto-generated method stub
-        Optional<AnnonceEntity> optional = repository.findById(id);
+        Optional<AnnonceDomain> optional = repository.findById(id);
         if (!optional.isPresent()) {
             throw new EntityNotFoundException("Annonce not found");
         }
@@ -107,16 +111,17 @@ public class AnnonceServiceImpl implements AnnonceService {
     }
 
     @Override
-    public Page<AnnonceEntity> getLastestAnnonces(String cityDepart, String cityDestination, String authorId, int page, int size, String byAdmin) {
+    public Page<AnnonceDomain> getLastestAnnonces(String cityDepart, String cityDestination, String authorId, int page,
+            int size, String byAdmin) {
         // TODO Auto-generated method stub
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         if (!Objects.equals(authorId, "")) {
-            return repository.findByAuthor(authorId, pageable);
+            return repository.findByAuthor_Id(authorId, pageable);
         }
-        Page<AnnonceEntity> result = repository.findByDepartureCityContainingAndDestinationCityContaining(
-            cityDepart, cityDestination, pageable);
+        Page<AnnonceDomain> result = repository.findByDepartureCityContainingAndDestinationCityContaining(
+                cityDepart, cityDestination, pageable);
         if (Objects.isNull(byAdmin)) {
-            List<AnnonceEntity> annonces = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
+            List<AnnonceDomain> annonces = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
             return new PageImpl<>(annonces, pageable, annonces.size());
         }
         return result;
