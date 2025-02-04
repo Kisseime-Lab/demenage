@@ -7,7 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import com.startup.demenage.entity.OffreEntity;
+import com.startup.demenage.domain.OffreDomain;
 import com.startup.demenage.model.Offre;
 import com.startup.demenage.model.Offre.StatusEnum;
 
@@ -22,7 +22,7 @@ public class OffreDto {
         this.annonceDto = annonceDto;
     }
 
-    public Offre toModel(OffreEntity offreEntity) {
+    public Offre toModel(OffreDomain offreEntity) {
         Offre offre = new Offre();
         BeanUtils.copyProperties(offreEntity, offre);
         offre.setCreatedAt(offreEntity.getCreatedAt().toString());
@@ -34,7 +34,7 @@ public class OffreDto {
         return offre;
     }
 
-    public Page<Offre> toListModel(Page<OffreEntity> offreEntities) {
+    public Page<Offre> toListModel(Page<OffreDomain> offreEntities) {
         return offreEntities.map(o -> toModel(o));
     }
 }

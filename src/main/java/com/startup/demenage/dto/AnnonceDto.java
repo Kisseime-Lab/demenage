@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
-import com.startup.demenage.entity.AnnonceEntity;
+import com.startup.demenage.domain.AnnonceDomain;
 import com.startup.demenage.model.Annonce;
 import com.startup.demenage.model.User;
 
@@ -25,7 +25,7 @@ final public class AnnonceDto {
         this.userDto = userDto;
     }
 
-    public Annonce toModel(AnnonceEntity annonceEntity) {
+    public Annonce toModel(AnnonceDomain annonceEntity) {
         Annonce annonce = new Annonce();
         BeanUtils.copyProperties(annonceEntity, annonce);
         annonce.setDistance(BigDecimal.valueOf(annonceEntity.getDistance()));
@@ -39,7 +39,7 @@ final public class AnnonceDto {
         return annonce;
     }
 
-    public Page<Annonce> toListModel(Page<AnnonceEntity> annonces) {
+    public Page<Annonce> toListModel(Page<AnnonceDomain> annonces) {
         return annonces.map(a -> toModel(a));
     }
 }

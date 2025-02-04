@@ -13,8 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.startup.demenage.UserApi;
+import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.dto.UserDto;
-import com.startup.demenage.entity.UserEntity;
 import com.startup.demenage.model.InputPassword;
 import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
@@ -22,7 +22,6 @@ import com.startup.demenage.model.SignInReq;
 import com.startup.demenage.model.SignedInUser;
 import com.startup.demenage.model.User;
 import com.startup.demenage.service.UserService;
-import com.startup.demenage.service.serviceImpl.UserServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -44,12 +43,11 @@ public class AuthController implements UserApi {
         return ok(service.getAccessToken(refreshToken).orElseThrow(RuntimeException::new));
     }
 
-
     @Override
     public ResponseEntity<SignedInUser> signIn(@Valid SignInReq signInReq) {
-        UserEntity userEntity = service.findUserByEmail(signInReq.getUsername(), null);
-        if (Objects.nonNull(userEntity) && passwordEncoder.matches(signInReq.getPassword(), userEntity.getPassword())) {
-            return ok(service.getSignedInUser(userEntity));
+        UserDomain userDomain = service.findUserByEmail(signInReq.getUsername(), null);
+        if (Objects.nonNull(userDomain) && passwordEncoder.matches(signInReq.getPassword(), userDomain.getPassword())) {
+            return ok(service.getSignedInUser(userDomain));
         }
         throw new InsufficientAuthenticationException("Unauthorized.");
     }
@@ -74,8 +72,6 @@ public class AuthController implements UserApi {
         return status(HttpStatus.OK).build();
     }
 
-    
-
     @Override
     public ResponseEntity<PasswordValidated> verifyPassword(@Valid InputPassword inputPassword) throws Exception {
         // TODO Auto-generated method stub
@@ -85,7 +81,7 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<User> updateUser(@Valid String email, @Valid String byAdmin, @Valid User user)
             throws Exception {
-            return status(HttpStatus.OK).body(userDto.toModel(service.updateUser(user, email)));
+        return status(HttpStatus.OK).body(userDto.toModel(service.updateUser(user, email)));
     }
 
     @Override
