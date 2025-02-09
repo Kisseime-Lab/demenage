@@ -26,25 +26,24 @@ app:
       keystore-password: dckr_pat_qIVLivFVqi95Nq6LJj6WcGOL6nA
       key-alias: jwt-sign-key
       private-key-passphrase: dckr_pat_qIVLivFVqi95Nq6LJj6WcGOL6nA
-
----
-spring:
-  profiles:
-    active: test
-  datasource:
-    url: jdbc:h2:mem:demenage;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    show-sql: true
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
-  security:
-    user:
-      name: admin
-      password: admin123
-  main:
-    allow-circular-references: true
+# ---
+# spring:
+#   profiles:
+#     active: test
+#   datasource:
+#     url: jdbc:h2:mem:demenage;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#     driver-class-name: org.h2.Driver
+#     username: sa
+#     password:
+#   jpa:
+#     show-sql: true
+#     generate-ddl: true
+#     hibernate:
+#       ddl-auto: update
+#     database-platform: org.hibernate.dialect.H2Dialect
+#   security:
+#     user:
+#       name: admin
+#       password: admin123
+#   main:
+#     allow-circular-references: true
