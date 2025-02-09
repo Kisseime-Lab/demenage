@@ -71,6 +71,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j:9.0.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    testImplementation 'io.rest-assured:rest-assured-all:5.5.0'
+    testImplementation 'com.h2database:h2:2.3.232'
 
 
 }
