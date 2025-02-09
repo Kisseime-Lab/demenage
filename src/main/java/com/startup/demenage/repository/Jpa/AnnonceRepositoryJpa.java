@@ -32,7 +32,7 @@ public class AnnonceRepositoryJpa implements AnnonceRepository {
     @Override
     public Page<AnnonceDomain> findByDepartureCityContainingAndDestinationCityContaining(
             String cityDepart, String cityDestination, Pageable pageable) {
-        String sql = "SELECT * FROM demenage.annonce where ville_depart LIKE :cityDepart AND ville_arrivee LIKE :cityDestination ;";
+        String sql = "SELECT * FROM annonce where ville_depart LIKE :cityDepart AND ville_arrivee LIKE :cityDestination ;";
         Query query = em.createNativeQuery(sql, AnnonceEntity.class);
         query.setParameter("cityDepart", "%" + cityDepart + "%");
         query.setParameter("cityDestination", "%" + cityDestination + "%");
@@ -44,7 +44,7 @@ public class AnnonceRepositoryJpa implements AnnonceRepository {
 
     @Override
     public Page<AnnonceDomain> findByAuthor_Id(String author, Pageable pageable) {
-        String sql = "SELECT * FROM demenage.annonce where author_id = :author ;";
+        String sql = "SELECT * FROM annonce where author_id = :author ;";
         Query query = em.createNativeQuery(sql, AnnonceEntity.class);
         query.setParameter("author", author);
 
