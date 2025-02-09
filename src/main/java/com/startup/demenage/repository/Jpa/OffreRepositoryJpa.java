@@ -35,7 +35,7 @@ public class OffreRepositoryJpa implements OffreRepository {
     @Override
     public Page<OffreDomain> findByAnnonce_IdContainingAndAuthor_IdContaining(String annonceId, String authorId,
             Pageable pageable) {
-        String sql = "SELECT * FROM demenage.offre WHERE id LIKE :annonceId AND author_id LIKE :authordId ; ";
+        String sql = "SELECT * FROM offre WHERE id LIKE :annonceId AND author_id LIKE :authordId ; ";
         Query query = em.createNativeQuery(sql, OffreEntity.class);
 
         query.setParameter("annonceId", "%" + annonceId + "%");
@@ -48,7 +48,7 @@ public class OffreRepositoryJpa implements OffreRepository {
 
     @Override
     public Page<OffreDomain> findByAuthor_Id(String author, Pageable pageable) {
-        String sql = "SELECT * FROM demenage.offre WHERE author_id = :authordId ; ";
+        String sql = "SELECT * FROM offre WHERE author_id = :authordId ; ";
         Query query = em.createNativeQuery(sql, OffreEntity.class);
 
         query.setParameter("authorId", author);
@@ -68,7 +68,7 @@ public class OffreRepositoryJpa implements OffreRepository {
 
     @Override
     public Optional<OffreDomain> findById(String id) {
-        String sql = "SELECT * FROM demenage.offre WHERE id = :id ; ";
+        String sql = "SELECT * FROM offre WHERE id = :id ; ";
         Query query = em.createNativeQuery(sql, OffreEntity.class);
 
         query.setParameter("id", id);

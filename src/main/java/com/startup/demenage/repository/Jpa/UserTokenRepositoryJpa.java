@@ -31,7 +31,7 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
 
     @Override
     public Optional<UserTokenDomain> findByRefreshToken(String refreshToken) {
-        String sql = "SELECT * FROM demenage.user_token WHERE refresh_token = :token ; ";
+        String sql = "SELECT * FROM user_token WHERE refresh_token = :token ; ";
         Query query = em.createNativeQuery(sql, UserTokenEntity.class);
 
         query.setParameter("token", refreshToken);
@@ -43,7 +43,7 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
 
     @Override
     public void deleteByUserId(String userId) {
-        String sql = "DELETE FROM demenage.user_token WHERE user_id = :id ; ";
+        String sql = "DELETE FROM user_token WHERE user_id = :id ; ";
         Query query = em.createNativeQuery(sql, UserTokenEntity.class);
 
         query.setParameter("id", userId);

@@ -119,7 +119,7 @@ public class SecurityConfig {
                 // BearerTokenAuthenticationFilter.class)
                 // .addFilterBefore(new AuthorizationFilter(cusAuthenticationManager),
                 // AuthorizationFilter.class)
-                .authenticationProvider(customPreAuthenticatedProvider())
+                // .authenticationProvider(customPreAuthenticatedProvider())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()

@@ -31,7 +31,7 @@ public class UserRepositoryJpa implements UserRepository {
 
     @Override
     public Optional<UserDomain> findByUsername(String username) {
-        String sql = "SELECT * FROM demenage.author where username = :username ;";
+        String sql = "SELECT * FROM author where username = :username ;";
         Query query = em.createNativeQuery(sql, UserEntity.class);
         query.setParameter("username", username);
 
@@ -55,7 +55,7 @@ public class UserRepositoryJpa implements UserRepository {
 
     @Override
     public void deleteByUserId(String id) {
-        String sql = "DELETE FROM demenage.author where id = :id ;";
+        String sql = "DELETE FROM author where id = :id ;";
         Query query = em.createNativeQuery(sql, UserEntity.class);
         query.setParameter("id", id);
 
@@ -64,7 +64,7 @@ public class UserRepositoryJpa implements UserRepository {
 
     @Override
     public Optional<UserDomain> findById(String id) {
-        String sql = "SELECT * FROM demenage.author where id = :id ;";
+        String sql = "SELECT * FROM author where id = :id ;";
         Query query = em.createNativeQuery(sql, UserEntity.class);
         query.setParameter("id", id);
 
