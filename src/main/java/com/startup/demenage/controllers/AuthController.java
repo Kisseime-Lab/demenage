@@ -49,7 +49,7 @@ public class AuthController implements UserApi {
         if (Objects.nonNull(userDomain) && passwordEncoder.matches(signInReq.getPassword(), userDomain.getPassword())) {
             return ok(service.getSignedInUser(userDomain));
         }
-        throw new InsufficientAuthenticationException("Unauthorized.");
+        throw new InsufficientAuthenticationException("Email et/ou password Incorrect");
     }
 
     @Override
