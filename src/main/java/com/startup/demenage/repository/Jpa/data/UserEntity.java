@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.startup.demenage.domain.RoleEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,6 +27,10 @@ public class UserEntity {
     private String image;
     private String createdAt;
     private String phone;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role = RoleEnum.CUSTOMER;
+    @OneToMany(orphanRemoval = true, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserTokenEntity> token;
 
     public String getPhone() {
         return phone;
@@ -53,11 +58,6 @@ public class UserEntity {
     public void setDeletedAt(String deletedAt) {
         this.deletedAt = deletedAt;
     }
-
-    @Enumerated(EnumType.STRING)
-    private RoleEnum role = RoleEnum.CUSTOMER;
-    @OneToMany(orphanRemoval = true, mappedBy = "user")
-    private List<UserTokenEntity> token;
 
     public UserEntity() {
         this.createdAt = LocalDateTime.now().toString();
