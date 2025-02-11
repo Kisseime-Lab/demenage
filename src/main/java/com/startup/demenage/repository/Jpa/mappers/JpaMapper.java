@@ -96,6 +96,9 @@ public class JpaMapper {
         entity.setImage(domain.getImage());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setPhone(domain.getPhone());
+        if (domain.getToken().size() > 0) {
+            entity.setToken(domain.getToken().stream().map(JpaMapper::userTokenEntity).toList());
+        }
 
         return entity;
     }
@@ -115,7 +118,9 @@ public class JpaMapper {
         domain.setImage(entity.getImage());
         domain.setCreatedAt(entity.getCreatedAt());
         domain.setPhone(entity.getPhone());
-
+        if (domain.getToken().size() > 0) {
+            domain.setToken(entity.getToken().stream().map(JpaMapper::userTokenToDomain).toList());
+        }
         return domain;
     }
 
@@ -160,7 +165,7 @@ public class JpaMapper {
         UserTokenDomain domain = new UserTokenDomain();
         domain.setId(entity.getId());
         domain.setRefreshToken(entity.getRefreshToken());
-        domain.setUser(userToDomain(entity.getUser()));
+        // domain.setUser(userToDomain(entity.getUser()));
         return domain;
     }
 
