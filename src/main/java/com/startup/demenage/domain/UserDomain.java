@@ -1,6 +1,7 @@
 package com.startup.demenage.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ public class UserDomain {
     private String image;
     private String createdAt;
     private String phone;
+    private RoleEnum role = RoleEnum.CUSTOMER;
+    private List<UserTokenDomain> token = new ArrayList<>();
 
     public String getPhone() {
         return phone;
@@ -41,10 +44,6 @@ public class UserDomain {
     public void setDeletedAt(String deletedAt) {
         this.deletedAt = deletedAt;
     }
-
-    private RoleEnum role = RoleEnum.CUSTOMER;
-
-    private List<UserTokenDomain> token;
 
     public UserDomain() {
         this.createdAt = LocalDateTime.now().toString();
