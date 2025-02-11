@@ -1,6 +1,7 @@
 package com.startup.demenage.repository.Jpa.data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private RoleEnum role = RoleEnum.CUSTOMER;
     @OneToMany(orphanRemoval = true, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserTokenEntity> token;
+    private List<UserTokenEntity> token = new ArrayList<>();
 
     public String getPhone() {
         return phone;
