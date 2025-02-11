@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.startup.demenage.domain.OffreDomain;
 import com.startup.demenage.domain.UserTokenDomain;
 import com.startup.demenage.repository.UserTokenRepository;
+import com.startup.demenage.repository.Jpa.data.UserEntity;
 import com.startup.demenage.repository.Jpa.data.UserTokenEntity;
 import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
 
@@ -53,8 +54,10 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
 
     @Override
     public void save(UserTokenDomain userTokenDomain) {
-        UserTokenEntity entity = JpaMapper.userTokenEntity(userTokenDomain);
-        em.persist(entity);
+        UserTokenEntity userTokenEntity = JpaMapper.userTokenEntity(userTokenDomain);
+        UserEntity user = em.find(UserEntity.class, userTokenEntity.getUser().getId());
+        userTokenEntity.setUser(em.merge(user));
+        em.persist(userTokenEntity);
     }
 
     @Override
