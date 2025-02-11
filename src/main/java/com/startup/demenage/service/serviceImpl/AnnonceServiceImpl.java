@@ -115,15 +115,18 @@ public class AnnonceServiceImpl implements AnnonceService {
             int size, String byAdmin) {
         // TODO Auto-generated method stub
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<AnnonceDomain> annonces;
         if (!Objects.equals(authorId, "")) {
-            return repository.findByAuthor_Id(authorId, pageable);
+            annonces = repository.findByAuthor_Id(authorId, pageable);
+        } else {
+            annonces = repository.findByDepartureCityContainingAndDestinationCityContaining(
+                    cityDepart, cityDestination, pageable);
         }
-        Page<AnnonceDomain> result = repository.findByDepartureCityContainingAndDestinationCityContaining(
-                cityDepart, cityDestination, pageable);
+        int deleteElements = (int) annonces.getContent().stream().filter(a -> a.isDeleted()).count();
         if (Objects.isNull(byAdmin)) {
-            List<AnnonceDomain> annonces = result.getContent().stream().filter(a -> !a.isDeleted()).toList();
-            return new PageImpl<>(annonces, pageable, annonces.size());
+            List<AnnonceDomain> result = annonces.getContent().stream().filter(a -> !a.isDeleted()).toList();
+            return new PageImpl<>(result, pageable, annonces.getTotalElements() - deleteElements);
         }
-        return result;
+        return annonces;
     }
 }
