@@ -473,9 +473,7 @@ components:
         destination:
           $ref: "#/components/schemas/Adresse"
         photos:
-          type: array
-          items:
-            type: string
+          type: string
         distance:
           type: number
         prix:

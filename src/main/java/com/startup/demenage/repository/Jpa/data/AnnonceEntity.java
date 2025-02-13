@@ -36,9 +36,7 @@ public class AnnonceEntity {
             @AttributeOverride(name = "zipCode", column = @Column(name = "code_postal_arrivee"))
     })
     private AdresseEntity destination;
-    @ElementCollection
-    @CollectionTable
-    private List<String> photos;
+    private String photos;
     private double distance;
     private double prix;
 
@@ -131,11 +129,11 @@ public class AnnonceEntity {
         this.destination = destination;
     }
 
-    public List<String> getPhotos() {
+    public String getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<String> photos) {
+    public void setPhotos(String photos) {
         this.photos = photos;
     }
 

@@ -8,7 +8,7 @@ public class AnnonceDomain {
     private String id;
     private AdresseDomain departure;
     private AdresseDomain destination;
-    private List<String> photos;
+    private String photos;
     private double distance;
     private double prix;
 
@@ -99,11 +99,11 @@ public class AnnonceDomain {
         this.destination = destination;
     }
 
-    public List<String> getPhotos() {
+    public String getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<String> photos) {
+    public void setPhotos(String photos) {
         this.photos = photos;
     }
 
