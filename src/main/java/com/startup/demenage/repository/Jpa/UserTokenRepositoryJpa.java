@@ -57,7 +57,7 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
         UserTokenEntity userTokenEntity = JpaMapper.userTokenEntity(userTokenDomain);
         UserEntity user = em.find(UserEntity.class, userTokenEntity.getUser().getId());
         userTokenEntity.setUser(em.merge(user));
-        em.persist(userTokenEntity);
+        em.merge(userTokenEntity);
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.startup.demenage.domain.AnnonceDomain;
@@ -38,7 +39,11 @@ public class AnnonceRepositoryJpa implements AnnonceRepository {
         query.setParameter("cityDestination", "%" + cityDestination + "%");
         List<AnnonceEntity> result = query.getResultList();
 
-        return new PageImpl<AnnonceDomain>(result.stream().map(JpaMapper::annonceToDomain).toList(), pageable,
+        int start = pageable.getPageNumber() * pageable.getPageSize();
+        int end = Math.min(start + pageable.getPageSize(), result.size());
+        List<AnnonceEntity> paginatedUsers = result.subList(start, end);
+
+        return new PageImpl<AnnonceDomain>(paginatedUsers.stream().map(JpaMapper::annonceToDomain).toList(), pageable,
                 result.size());
     }
 
@@ -49,21 +54,24 @@ public class AnnonceRepositoryJpa implements AnnonceRepository {
         query.setParameter("author", author);
 
         List<AnnonceEntity> result = query.getResultList();
+        int start = pageable.getPageNumber() * pageable.getPageSize();
+        int end = Math.min(start + pageable.getPageSize(), result.size());
+        List<AnnonceEntity> paginatedUsers = result.subList(start, end);
 
-        return new PageImpl<AnnonceDomain>(result.stream().map(JpaMapper::annonceToDomain).toList(), pageable,
+        return new PageImpl<AnnonceDomain>(paginatedUsers.stream().map(JpaMapper::annonceToDomain).toList(), pageable,
                 result.size());
     }
 
     @Override
     public Optional<AnnonceDomain> findById(String id) {
-        AnnonceEntity annonceEntity = em.getReference(AnnonceEntity.class, id);
-        return Optional.of(JpaMapper.annonceToDomain(annonceEntity));
+        AnnonceEntity annonceEntity = em.find(AnnonceEntity.class, id);
+        return annonceEntity != null ? Optional.of(JpaMapper.annonceToDomain(annonceEntity)) : Optional.empty();
     }
 
     @Override
     public AnnonceDomain save(AnnonceDomain annonceDomain) {
         AnnonceEntity entity = JpaMapper.annonceToEntity(annonceDomain);
-        em.persist(entity);
+        em.merge(entity);
         return annonceDomain;
     }
 

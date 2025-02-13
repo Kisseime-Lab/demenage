@@ -43,7 +43,7 @@ public class UserRepositoryJpa implements UserRepository {
     @Override
     public UserDomain save(UserDomain user) {
         UserEntity userEntity = JpaMapper.userToEntity(user);
-        em.persist(userEntity);
+        em.merge(userEntity);
         return user;
     }
 
