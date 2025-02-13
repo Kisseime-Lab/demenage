@@ -149,7 +149,10 @@ public class UserServiceImpl implements UserService {
         Optional<UserDomain> oUserDomain = repository.findByUsername(uname);
         UserDomain userEntity;
         userEntity = oUserDomain.orElse(null);
-        if (userEntity == null || (Objects.isNull(byAdmin) && Objects.nonNull(userEntity) && userEntity.isDeleted())) {
+        if (userEntity == null) {
+            return null;
+        }
+        if ((Objects.isNull(byAdmin) && Objects.nonNull(userEntity) && userEntity.isDeleted())) {
             return null;
         }
         return userEntity;
