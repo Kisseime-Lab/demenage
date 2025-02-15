@@ -17,8 +17,10 @@ import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
 
 @Repository
+@Transactional
 public class AnnonceRepositoryJpa implements AnnonceRepository {
 
     private static AnnonceRepositoryJpa instance;

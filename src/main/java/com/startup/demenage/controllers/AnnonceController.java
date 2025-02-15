@@ -2,7 +2,6 @@ package com.startup.demenage.controllers;
 
 import static org.springframework.http.ResponseEntity.status;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,7 +27,8 @@ public class AnnonceController implements AnnonceApi {
     @Override
     public ResponseEntity<Annonce> createAnnonce(@Valid Annonce annonce) throws Exception {
         // TODO Auto-generated method stub
-        return status(HttpStatus.CREATED).body(annonceDto.toModel(service.addUpdateAnnonce(annonce)));
+        return status(HttpStatus.OK)
+                .body(annonceDto.toModel(service.addUpdateAnnonce(annonce)));
     }
 
     @Override

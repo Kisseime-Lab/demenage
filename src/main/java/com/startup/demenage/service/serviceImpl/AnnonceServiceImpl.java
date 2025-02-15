@@ -45,9 +45,10 @@ public class AnnonceServiceImpl implements AnnonceService {
             Optional<AnnonceDomain> exOptional = repository.findById(annonce.getId());
             if (exOptional.isPresent()) {
                 annonceDomain.setId(exOptional.get().getId());
-                if (!Objects.equals(annonceDomain.isDeleted(), exOptional.get().isDeleted())) {
-                    annonceDomain.setDeletedAt(LocalDateTime.now().toString());
-                }
+                // if (!Objects.equals(annonceDomain.isDeleted(), exOptional.get().isDeleted()))
+                // {
+                // annonceDomain.setDeletedAt(LocalDateTime.now().toString());
+                // }
             }
         }
         return repository.save(annonceDomain);
@@ -71,7 +72,6 @@ public class AnnonceServiceImpl implements AnnonceService {
 
     @Override
     public AnnonceDomain toEntity(Annonce annonce) {
-        // TODO Auto-generated method stub
         AnnonceDomain annonceDomain = new AnnonceDomain();
         String newId = annonceDomain.getId();
         BeanUtils.copyProperties(annonce, annonceDomain);
