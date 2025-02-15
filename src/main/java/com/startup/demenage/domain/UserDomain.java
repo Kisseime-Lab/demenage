@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class UserDomain {
-    private String id = UUID.randomUUID().toString();
+    private String id;
     private String firstname;
     private String lastname;
     private String username;
@@ -46,7 +46,8 @@ public class UserDomain {
     }
 
     public UserDomain() {
-        this.createdAt = LocalDateTime.now().toString();
+        this.role = RoleEnum.CUSTOMER;
+        this.id = UUID.randomUUID().toString();
     }
 
     public String getId() {

@@ -1,5 +1,6 @@
 package com.startup.demenage.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -60,19 +61,19 @@ public class AnnonceDomain {
         this.titre = titre;
     }
 
-    private LocalDateTime createdAt;
+    private String createdAt;
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
     public AnnonceDomain() {
         this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().toString();
     }
 
     public String getId() {
