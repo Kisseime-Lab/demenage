@@ -1,13 +1,5 @@
 package com.startup.demenage.security;
 
-import static com.startup.demenage.security.Constants.API_URL_PREFIX;
-import static com.startup.demenage.security.Constants.AUTHORITY_PREFIX;
-import static com.startup.demenage.security.Constants.REFRESH_URL;
-import static com.startup.demenage.security.Constants.ROLE_CLAIM;
-import static com.startup.demenage.security.Constants.SIGNUP_URL;
-import static com.startup.demenage.security.Constants.TOKEN_URL;
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
@@ -34,8 +26,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -51,17 +43,19 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.startup.demenage.filters.FirebaseTokenFilter;
-import com.startup.demenage.utils.CustomPreAuthenticatedUserDetailsService;
+import static com.startup.demenage.security.Constants.API_URL_PREFIX;
+import static com.startup.demenage.security.Constants.AUTHORITY_PREFIX;
+import static com.startup.demenage.security.Constants.REFRESH_URL;
+import static com.startup.demenage.security.Constants.ROLE_CLAIM;
+import static com.startup.demenage.security.Constants.SIGNUP_URL;
+import static com.startup.demenage.security.Constants.TOKEN_URL;
 
 @Configuration
 @EnableWebSecurity
@@ -141,13 +135,6 @@ public class SecurityConfig {
     public AuthenticationEventPublisher authenticationEventPublisher(
             ApplicationEventPublisher applicationEventPublisher) {
         return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        PreAuthenticatedAuthenticationProvider provider = customPreAuthenticatedProvider();
-        builder.authenticationProvider(provider);
-        return this.authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
