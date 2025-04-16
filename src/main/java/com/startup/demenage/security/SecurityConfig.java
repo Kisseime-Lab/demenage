@@ -114,12 +114,6 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .cors(withDefaults())
-                // .addFilter(firebaseTokenFilter())
-                // .addFilterBefore(firebaseTokenFilter(),
-                // BearerTokenAuthenticationFilter.class)
-                // .addFilterBefore(new AuthorizationFilter(cusAuthenticationManager),
-                // AuthorizationFilter.class)
-                // .authenticationProvider(customPreAuthenticatedProvider())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
@@ -149,49 +143,11 @@ public class SecurityConfig {
         return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     }
 
-    // @Bean
-    // @Qualifier("Jwt")
-    // public AuthenticationManager authenticationManager(
-    // AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    // return authenticationConfiguration.getAuthenticationManager();
-    // }
-
-    // @Bean
-    // @Qualifier("Google")
-    // @Lazy
-    // public AuthenticationManager
-    // googleAuthenticationManager(AuthenticationEventPublisher publisher) throws
-    // Exception {
-    // MyCustomPreAuthenticatedProvider provider = customPreAuthenticatedProvider();
-    // ProviderManager providerManager = new ProviderManager(provider);
-    // providerManager.setAuthenticationEventPublisher(publisher);
-    // return providerManager;
-    // }
-
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         PreAuthenticatedAuthenticationProvider provider = customPreAuthenticatedProvider();
         builder.authenticationProvider(provider);
         return this.authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public PreAuthenticatedAuthenticationProvider customPreAuthenticatedProvider() {
-        PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-        provider.setPreAuthenticatedUserDetailsService(customPreAuthenticatedUserDetailsService());
-        return provider;
-    }
-
-    @Bean
-    public FirebaseTokenFilter firebaseTokenFilter() throws Exception {
-        FirebaseTokenFilter filter = new FirebaseTokenFilter();
-        filter.setAuthenticationManager(authenticationManager());
-        return filter;
-    }
-
-    @Bean
-    public CustomPreAuthenticatedUserDetailsService customPreAuthenticatedUserDetailsService() {
-        return new CustomPreAuthenticatedUserDetailsService(userDetailsService());
     }
 
     @Bean
