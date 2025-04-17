@@ -3,8 +3,14 @@ plugins {
 	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'org.hidetake.swagger.generator' version '2.19.2'
+	id "org.sonarqube" version "6.0.1.5171"
 }
-
+sonar {
+  properties {
+    property "sonar.projectKey", "Kisseime-Lab_demenage_6d147a64-0769-4564-a05a-060ca79117ec"
+    property "sonar.projectName", "demenage"
+  }
+}
 group = 'com.startup'
 version = '0.0.1-SNAPSHOT'
 
