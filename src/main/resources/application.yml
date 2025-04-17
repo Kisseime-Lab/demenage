@@ -18,11 +18,3 @@ spring:
 
 server:
   port: ${PORT:4500}
-
-app:
-  security:
-    jwt:
-      keystore-location: jwtkeystore.jks
-      keystore-password: dckr_pat_qIVLivFVqi95Nq6LJj6WcGOL6nA
-      key-alias: jwt-sign-key
-      private-key-passphrase: dckr_pat_qIVLivFVqi95Nq6LJj6WcGOL6nA

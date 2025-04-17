@@ -1,43 +1,37 @@
 package com.startup.demenage.security;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.List;
+import static com.startup.demenage.security.Constants.API_URL_PREFIX;
+import static com.startup.demenage.security.Constants.AUTHORITY_PREFIX;
+import static com.startup.demenage.security.Constants.REFRESH_URL;
+import static com.startup.demenage.security.Constants.ROLE_CLAIM;
+import static com.startup.demenage.security.Constants.SIGNUP_URL;
+import static com.startup.demenage.security.Constants.TOKEN_URL;
+import static org.springframework.security.config.Customizer.withDefaults;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.*;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationEventPublisher;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import static org.springframework.security.config.Customizer.withDefaults;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -49,13 +43,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import static com.startup.demenage.security.Constants.API_URL_PREFIX;
-import static com.startup.demenage.security.Constants.AUTHORITY_PREFIX;
-import static com.startup.demenage.security.Constants.REFRESH_URL;
-import static com.startup.demenage.security.Constants.ROLE_CLAIM;
-import static com.startup.demenage.security.Constants.SIGNUP_URL;
-import static com.startup.demenage.security.Constants.TOKEN_URL;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.Jwts;
 
 @Configuration
 @EnableWebSecurity
@@ -63,38 +52,8 @@ import static com.startup.demenage.security.Constants.TOKEN_URL;
 @SuppressWarnings("deprecation")
 public class SecurityConfig {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
-    private final UserDetailsService userService;
-    private final PasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final AuthenticationManagerBuilder builder;
-
-    private final ObjectMapper mapper;
-
-    @Value("${app.security.jwt.keystore-location}")
-    private String keyStorePath;
-
-    @Value("${app.security.jwt.keystore-password}")
-    private String keyStorePassword;
-
-    @Value("${app.security.jwt.key-alias}")
-    private String keyAlias;
-
-    @Value("${app.security.jwt.private-key-passphrase}")
-    private String privateKeyPassphrase;
-
-    public SecurityConfig(
-            @Lazy UserDetailsService userService,
-            @Lazy PasswordEncoder _bCryptPasswordEncoder,
-            @Lazy ObjectMapper _mapper,
-            @Lazy AuthenticationConfiguration aConfiguration,
-            @Lazy AuthenticationManagerBuilder builder) {
-        this.userService = userService;
-        this.bCryptPasswordEncoder = _bCryptPasswordEncoder;
-        this.mapper = _mapper;
-        this.authenticationConfiguration = aConfiguration;
-        this.builder = builder;
-    }
+    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000; // 15 min
+    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -130,18 +89,7 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(authorityConverter);
         return converter;
     }
-
-    @Bean
-    public AuthenticationEventPublisher authenticationEventPublisher(
-            ApplicationEventPublisher applicationEventPublisher) {
-        return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
-    }
-
-    @Bean
-    protected UserDetailsService userDetailsService() {
-        return userService;
-    }
-
+    
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -157,45 +105,71 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
-    public KeyStore keyStore() {
-        try {
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream(keyStorePath);
-            keyStore.load(resourceAsStream, keyStorePassword.toCharArray());
-            return keyStore;
-        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
-            LOG.error("Unable to load keystore: {}", keyStorePath, e);
-        }
-        throw new IllegalArgumentException("Unable to load keystore");
+    private RSAPublicKey publicKey() throws Exception {
+        return (RSAPublicKey) loadPublicKey("src/main/resources/keys/public.pem");
     }
 
-    @Bean
-    public RSAPrivateKey jwtSigningKey(KeyStore keyStore) {
-        try {
-            Key key = keyStore.getKey(keyAlias, privateKeyPassphrase.toCharArray());
-            if (key instanceof RSAPrivateKey) {
-                return (RSAPrivateKey) key;
-            }
-        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e) {
-            LOG.error("Unable to load private key from keystore: {}", keyStorePath, e);
+    private static PrivateKey loadPrivateKey() throws Exception {
+        // Lire le contenu du fichier public.pem
+        String key = System.getProperty("PRIVATE_KEY_PEM");
+        if (key == null) {
+            Dotenv dotenv = Dotenv.configure().load();
+            key = dotenv.get("PRIVATE_KEY_PEM");
         }
-        throw new IllegalArgumentException("Unable to load private key");
+
+        // Supprimer les en-têtes et pieds de la clé
+        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+
+        // Décoder la clé en Base64
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+
+        // Construire une clé RSA publique
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
     }
 
-    @Bean
-    public RSAPublicKey jwtValidationKey(KeyStore keyStore) {
-        try {
-            Certificate certificate = keyStore.getCertificate(keyAlias);
-            PublicKey publicKey = certificate.getPublicKey();
-            if (publicKey instanceof RSAPublicKey) {
-                return (RSAPublicKey) publicKey;
-            }
-        } catch (KeyStoreException e) {
-            LOG.error("Unable to load private key from keystore: {}", keyStorePath, e);
-        }
-        throw new IllegalArgumentException("Unable to load RSA public key");
+    public static PublicKey loadPublicKey(String filePath) throws Exception {
+        // Lire le contenu du fichier public.pem
+        String key = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        // Supprimer les en-têtes et pieds de la clé
+        key = key.replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", ""); // Supprimer les espaces et sauts de ligne
+
+        // Décoder la clé en Base64
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+
+        // Construire une clé RSA publique
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(keySpec);
+    }
+
+    public static Map<String, String> generateTokens(String username) throws Exception {
+        long now = System.currentTimeMillis();
+        PrivateKey privateKey = loadPrivateKey();
+        String accessToken = Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRATION))
+                .signWith(privateKey)
+                .compact();
+
+        String refreshToken = Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRATION))
+                .signWith(privateKey)
+                .compact();
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+        return tokens;
     }
 
     @Bean
