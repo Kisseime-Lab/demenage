@@ -27,7 +27,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Annonce'
+                $ref: "#/components/schemas/Annonce"
     get:
       tags:
         - Annonce
@@ -95,7 +95,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Annonce'
+                $ref: "#/components/schemas/Annonce"
         400:
           description: error when fetching annonce
     put:
@@ -117,14 +117,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Annonce'
+              $ref: "#/components/schemas/Annonce"
       responses:
         200:
           description: updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Annonce'
+                $ref: "#/components/schemas/Annonce"
         400:
           description: error when updating annonce
     delete:
@@ -203,7 +203,7 @@ paths:
           schema:
             type: string
       responses:
-        200: 
+        200:
           description: get successfully
           content:
             application/json:
@@ -226,7 +226,7 @@ paths:
           schema:
             type: string
       responses:
-        200: 
+        200:
           description: get successfully
           content:
             application/json:
@@ -290,14 +290,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
       responses:
         201:
           description: For successful user creation.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SignedInUser'
+                $ref: "#/components/schemas/SignedInUser"
+        422:
+          description: Validation Input Exception
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorApiModel"
+        400:
+          description: Invalid Input Exception
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorApiModel"
+
     get:
       tags:
         - User
@@ -391,14 +404,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignInReq'
+              $ref: "#/components/schemas/SignInReq"
       responses:
         200:
           description: Returns the access and refresh token.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SignedInUser'
+                $ref: "#/components/schemas/SignedInUser"
     delete:
       tags:
         - User
@@ -409,7 +422,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshToken'
+              $ref: "#/components/schemas/RefreshToken"
       responses:
         202:
           description: Accepts the request for logout.
@@ -424,7 +437,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/InputPassword'
+              $ref: "#/components/schemas/InputPassword"
       responses:
         200:
           description: checked successfully
@@ -446,14 +459,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshToken'
+              $ref: "#/components/schemas/RefreshToken"
       responses:
         200:
           description: For successful operation.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SignedInUser'
+                $ref: "#/components/schemas/SignedInUser"
 
 components:
   schemas:
@@ -505,7 +518,7 @@ components:
           type: boolean
         deletedAt:
           type: string
-        
+
     Offre:
       type: object
       properties:
@@ -550,7 +563,7 @@ components:
           type: string
         role:
           type: string
-    
+
     SignInReq:
       description: Request body for Sign-in
       type: object
@@ -574,18 +587,27 @@ components:
       properties:
         id:
           type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
         username:
           type: string
+          pattern: ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
         firstname:
           type: string
+          pattern: ^[a-zA-Z\-]*$
         lastname:
           type: string
+          pattern: ^[a-zA-Z\-]*$
         password:
           type: string
+          pattern: ^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\!\@\#\$\%\^\&\*\(\)\-\_\=\+\[\]\{\}\|\;\:\'\,\.\?\/])[A-Za-z\d\!\@\#\$\%\^\&\*\(\)\-\_\=\+\[\]\{\}\|\;\:\'\,\.\?\/]{8,16}$
         phone:
           type: string
+          pattern: ^(?:(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4})$
         role:
           type: string
+          enum:
+            - ADMIN
+            - CUSTOMER
         emailValidated:
           type: boolean
         deleted:
@@ -594,8 +616,15 @@ components:
           type: string
         image:
           type: string
+          pattern: ^(https?:\/\/)([a-zA-Z0-9\-._~%]+\.[a-zA-Z]{2,}|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})(?::\d{1,5})?(\/[^\s?#]*)?(?:\?[^\s#]*)?(?:#[^\s]*)?$
         createdAt:
           type: string
+      required:
+        - firstname
+        - lastname
+        - password
+        - phone
+        - username
     InputPassword:
       type: object
       properties:
@@ -608,3 +637,10 @@ components:
       properties:
         passwordValidated:
           type: boolean
+    ErrorApiModel:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
