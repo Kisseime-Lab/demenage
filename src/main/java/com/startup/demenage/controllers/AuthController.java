@@ -6,6 +6,8 @@ import static org.springframework.http.ResponseEntity.status;
 
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -27,6 +29,8 @@ import jakarta.validation.Valid;
 
 @RestController
 public class AuthController implements UserApi {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService service;
     private final PasswordEncoder passwordEncoder;
@@ -87,6 +91,7 @@ public class AuthController implements UserApi {
     @Override
     public ResponseEntity<SignedInUser> signUp(@Valid User user) {
         // Have a validation for all required fields.
+        logger.info("Request received by controller");
         return status(HttpStatus.CREATED).body(service.createUser(user).get());
     }
 }
