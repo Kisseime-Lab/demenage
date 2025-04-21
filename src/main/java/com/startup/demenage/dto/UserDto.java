@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.model.User;
+import com.startup.demenage.model.User.RoleEnum;
 
 @Component
 public class UserDto {
@@ -18,7 +19,7 @@ public class UserDto {
         }
         User user = new User();
         BeanUtils.copyProperties(userDomain, user);
-        user.setRole(userDomain.getRole().name());
+        user.setRole(RoleEnum.fromValue(userDomain.getRole().name()));
         user.setPassword(null);
         return user;
     }

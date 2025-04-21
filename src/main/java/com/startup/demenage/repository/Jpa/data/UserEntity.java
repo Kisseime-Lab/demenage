@@ -13,13 +13,14 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Author")
 public class UserEntity {
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
     private String firstname;
     private String lastname;
     private String username;
@@ -61,7 +62,7 @@ public class UserEntity {
     }
 
     public UserEntity() {
-        this.createdAt = LocalDateTime.now().toString();
+        this.id = UUID.randomUUID().toString();
     }
 
     public String getId() {
@@ -124,8 +125,9 @@ public class UserEntity {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now().toString();
     }
 
     public RoleEnum getRole() {

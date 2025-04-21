@@ -1,6 +1,5 @@
 package com.startup.demenage.domain;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -129,4 +128,5 @@ public class UserDomain {
     public void setToken(List<UserTokenDomain> token) {
         this.token = token;
     }
+
 }
