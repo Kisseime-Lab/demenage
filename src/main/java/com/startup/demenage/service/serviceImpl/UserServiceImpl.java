@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,6 +33,8 @@ import com.startup.demenage.service.UserService;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository repository;
     private final UserTokenRepository userTokenRepository;
@@ -62,11 +66,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<SignedInUser> createUser(User user) {
+        logger.info("Start createUser service");
+        logger.debug("Search if the user we want to create already exists");
         UserDomain _user = this.findUserByEmail(user.getUsername(), null);
         if (_user != null) {
+            logger.warn("Cannot create user with an existing email");
             throw new RuntimeException("Use different username and email.");
         }
         UserDomain userEntity = repository.save(toEntity(user));
+        logger.info("User created successfully");
         return Optional.of(createSignedUserWithRefreshToken(userEntity));
     }
 
@@ -99,16 +107,18 @@ public class UserServiceImpl implements UserService {
     }
 
     private SignedInUser createSignedUserWithRefreshToken(UserDomain userEntity) {
+        logger.info("start create Signed User with refresh token");
         return createSignedInUser(userEntity).refreshToken(createRefreshToken(userEntity));
     }
 
     private SignedInUser createSignedInUser(UserDomain userEntity) {
+        logger.debug("createSignedUser method started");
         String token = tokenManager.create(
                 org.springframework.security.core.userdetails.User.builder()
                         .username(userEntity.getUsername())
                         .password(userEntity.getPassword())
                         .authorities(
-                                Objects.nonNull(userEntity.getRole()) ? userEntity.getRole().name() : "")
+                                Objects.nonNull(userEntity.getRole()) ? userEntity.getRole().name() : "ROLE_USER")
                         .build());
         return new SignedInUser()
                 .username(userEntity.getUsername())
@@ -160,13 +170,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDomain toEntity(User user) {
+        logger.debug("Start converting user dto to UserDomain");
         UserDomain userEntity = new UserDomain();
         String newId = userEntity.getId();
-        BeanUtils.copyProperties(user, userEntity);
-        if (Objects.isNull(user.getId()) || Objects.equals(user.getId(), "")) {
+        userEntity.setFirstname(user.getFirstname());
+        userEntity.setLastname(user.getLastname());
+        userEntity.setUsername(user.getUsername());
+        userEntity.setPhone(user.getPhone());
+        if (Objects.isNull(user.getId())) {
             userEntity.setId(newId);
         }
-        userEntity.setRole(RoleEnum.valueOf(user.getRole()));
+        if (Objects.isNull(user.getRole())) {
+            userEntity.setRole(RoleEnum.CUSTOMER);
+        }
         if (Objects.nonNull(user.getPassword()) && !Objects.equals(user.getPassword(), "")) {
             userEntity.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         }

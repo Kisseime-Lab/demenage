@@ -3,12 +3,16 @@ package com.startup.demenage.repository.Jpa;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.repository.UserRepository;
 import com.startup.demenage.repository.Jpa.data.UserEntity;
 import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
+import com.startup.demenage.repository.StubMemory.StubMemoryUserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,19 +24,14 @@ import jakarta.transaction.Transactional;
 public class UserRepositoryJpa implements UserRepository {
 
     private static UserRepositoryJpa instance;
-
-    public static UserRepositoryJpa getInstance() {
-        if (instance == null) {
-            instance = new UserRepositoryJpa();
-        }
-        return instance;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryJpa.class);
 
     @PersistenceContext
     private EntityManager em;
 
     @Override
     public Optional<UserDomain> findByUsername(String username) {
+        logger.info("start findByUsername method");
         String sql = "SELECT * FROM author where username = :username ;";
         Query query = em.createNativeQuery(sql, UserEntity.class);
         query.setParameter("username", username);
