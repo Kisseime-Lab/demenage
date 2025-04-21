@@ -1,6 +1,10 @@
 package com.startup.demenage.security;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -19,12 +23,17 @@ import static com.startup.demenage.security.Constants.EXPIRATION_TIME;
 public class JwtManager {
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtManager.class);
+
     public JwtManager(@Lazy RSAPrivateKey privateKey,
-                      @Lazy RSAPublicKey publicKey) {
+            @Lazy RSAPublicKey publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
     }
+
     public String create(UserDetails principal) {
+        logger.info("Start creating Access token");
         final long now = System.currentTimeMillis();
         return JWT.create()
                 .withIssuer("demenage")

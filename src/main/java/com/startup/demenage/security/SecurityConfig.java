@@ -11,6 +11,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -32,6 +33,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -89,7 +93,7 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(authorityConverter);
         return converter;
     }
-    
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -105,11 +109,13 @@ public class SecurityConfig {
         return source;
     }
 
-    private RSAPublicKey publicKey() throws Exception {
-        return (RSAPublicKey) loadPublicKey("src/main/resources/keys/public.pem");
+    @Bean
+    RSAPublicKey publicKey() throws Exception {
+        return loadPublicKey("src/main/resources/keys/public.pem");
     }
 
-    private static PrivateKey loadPrivateKey() throws Exception {
+    @Bean
+    RSAPrivateKey loadPrivateKey() throws Exception {
         // Lire le contenu du fichier public.pem
         String key = System.getProperty("PRIVATE_KEY_PEM");
         if (key == null) {
@@ -128,10 +134,10 @@ public class SecurityConfig {
         // Construire une clé RSA publique
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePrivate(keySpec);
+        return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
     }
 
-    public static PublicKey loadPublicKey(String filePath) throws Exception {
+    RSAPublicKey loadPublicKey(String filePath) throws Exception {
         // Lire le contenu du fichier public.pem
         String key = new String(Files.readAllBytes(Paths.get(filePath)));
 
@@ -146,34 +152,43 @@ public class SecurityConfig {
         // Construire une clé RSA publique
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePublic(keySpec);
+        return (RSAPublicKey) keyFactory.generatePublic(keySpec);
     }
 
-    public static Map<String, String> generateTokens(String username) throws Exception {
-        long now = System.currentTimeMillis();
-        PrivateKey privateKey = loadPrivateKey();
-        String accessToken = Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRATION))
-                .signWith(privateKey)
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRATION))
-                .signWith(privateKey)
-                .compact();
-
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
-        return tokens;
-    }
+    /*
+     * public static Map<String, String> generateTokens(String username) throws
+     * Exception {
+     * long now = System.currentTimeMillis();
+     * PrivateKey privateKey = loadPrivateKey();
+     * String accessToken = Jwts.builder()
+     * .setSubject(username)
+     * .setIssuedAt(new Date())
+     * .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRATION))
+     * .signWith(privateKey)
+     * .compact();
+     * 
+     * String refreshToken = Jwts.builder()
+     * .setSubject(username)
+     * .setIssuedAt(new Date(now))
+     * .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRATION))
+     * .signWith(privateKey)
+     * .compact();
+     * 
+     * Map<String, String> tokens = new HashMap<>();
+     * tokens.put("accessToken", accessToken);
+     * tokens.put("refreshToken", refreshToken);
+     * return tokens;
+     * }
+     * 
+     */
 
     @Bean
     public JwtDecoder jwtDecoder(RSAPublicKey rsaPublicKey) {
         return NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
