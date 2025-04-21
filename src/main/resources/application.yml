@@ -18,3 +18,12 @@ spring:
 
 server:
   port: ${PORT:4500}
+
+logging:
+  level:
+    root: INFO
+  file:
+    name: app.log
+    path: /var/logs/myapp
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
