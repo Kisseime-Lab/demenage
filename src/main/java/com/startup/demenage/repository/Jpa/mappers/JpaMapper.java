@@ -94,7 +94,6 @@ public class JpaMapper {
         entity.setPassword(domain.getPassword());
         entity.setStatus(domain.getStatus());
         entity.setImage(domain.getImage());
-        entity.setCreatedAt(domain.getCreatedAt());
         entity.setPhone(domain.getPhone());
         if (domain.getToken().size() > 0) {
             entity.setToken(domain.getToken().stream().map(JpaMapper::userTokenEntity).toList());
