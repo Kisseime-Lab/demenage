@@ -571,9 +571,11 @@ components:
         username:
           description: username of the User
           type: string
+          pattern: ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
         password:
           description: password of the User
           type: string
+          pattern: ^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\!\@\#\$\%\^\&\*\(\)\-\_\=\+\[\]\{\}\|\;\:\'\,\.\?\/])[A-Za-z\d\!\@\#\$\%\^\&\*\(\)\-\_\=\+\[\]\{\}\|\;\:\'\,\.\?\/]{8,16}$
 
     RefreshToken:
       description: Contains the refresh token
