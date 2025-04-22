@@ -2,6 +2,7 @@ package com.startup.demenage.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,7 +22,8 @@ public class GlobalCatcher {
                 HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler({ InvalidInputException.class, UsernameNotFoundException.class })
+    @ExceptionHandler({ InvalidInputException.class, UsernameNotFoundException.class,
+            InsufficientAuthenticationException.class })
     public ResponseEntity<ErrorApiModel> handle_invalid_input_exception(Exception e) {
         return new ResponseEntity<ErrorApiModel>(
                 new ErrorApiModel().code(HttpStatus.BAD_REQUEST.name()).message(e.getMessage()),
