@@ -15,6 +15,13 @@ spring:
       password: admin123
   main:
     allow-circular-references: true
+app:
+  security:
+    jwt:
+      keystore-location: keys/keystore.p12
+      keystore-password: changeit
+      key-alias: jwt-sign-key
+      private-key-passphrase: changeit
 
 server:
   port: ${PORT:4500}
