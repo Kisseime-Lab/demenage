@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import com.startup.demenage.domain.UserTokenDomain;
 import com.startup.demenage.model.InputPassword;
 import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
+import com.startup.demenage.model.SignInReq;
 import com.startup.demenage.model.SignedInUser;
 import com.startup.demenage.model.User;
 import com.startup.demenage.repository.UserRepository;
@@ -128,14 +130,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<SignedInUser> getAccessToken(RefreshToken refreshToken) {
+    public SignedInUser getAccessToken(RefreshToken refreshToken) {
         // You may add an additional validation for time that would remove/invalidate
         // the refresh token
         return userTokenRepository
                 .findByRefreshToken(refreshToken.getRefreshToken())
                 .map(
-                        ut -> Optional.of(
-                                createSignedInUser(ut.getUser()).refreshToken(refreshToken.getRefreshToken())))
+                        ut -> createSignedInUser(ut.getUser()).refreshToken(refreshToken.getRefreshToken()))
                 .orElseThrow(() -> new RuntimeException("Invalid token."));
     }
 
@@ -148,6 +149,16 @@ public class UserServiceImpl implements UserService {
                         () -> {
                             throw new RuntimeException("Invalid token.");
                         });
+    }
+
+    @Override
+    public SignedInUser authenticate(SignInReq signInReq) {
+        UserDomain userDomain = this.findUserByEmail(signInReq.getUsername(), null);
+        if (Objects.nonNull(userDomain)
+                && bCryptPasswordEncoder.matches(signInReq.getPassword(), userDomain.getPassword())) {
+            return this.getSignedInUser(userDomain);
+        }
+        throw new InsufficientAuthenticationException("Email et/ou password Incorrect");
     }
 
     @Override

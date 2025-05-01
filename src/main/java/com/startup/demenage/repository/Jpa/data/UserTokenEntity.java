@@ -16,7 +16,7 @@ public class UserTokenEntity {
     @Column(name = "refresh_token")
     private String refreshToken;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 
     public UUID getId() {

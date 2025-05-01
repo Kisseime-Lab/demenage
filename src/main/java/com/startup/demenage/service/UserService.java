@@ -6,6 +6,7 @@ import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.model.InputPassword;
 import com.startup.demenage.model.PasswordValidated;
 import com.startup.demenage.model.RefreshToken;
+import com.startup.demenage.model.SignInReq;
 import com.startup.demenage.model.SignedInUser;
 import com.startup.demenage.model.User;
 
@@ -16,7 +17,7 @@ public interface UserService {
 
     SignedInUser getSignedInUser(UserDomain userEntity);
 
-    Optional<SignedInUser> getAccessToken(RefreshToken refToken);
+    SignedInUser getAccessToken(RefreshToken refToken);
 
     void removeRefreshToken(String refreshToken);
 
@@ -29,4 +30,6 @@ public interface UserService {
     UserDomain getUserById(String id, String byAdmin);
 
     PasswordValidated verifyPassword(InputPassword inputs);
+
+    SignedInUser authenticate(SignInReq signInReq);
 }
