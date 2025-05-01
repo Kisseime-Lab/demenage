@@ -25,7 +25,6 @@ public class UserDto {
     }
 
     public List<User> toListModel(List<UserDomain> userEntityList) {
-        List<User> users = new ArrayList<>();
         return userEntityList.stream().map(this::toModel).toList();
     }
 }

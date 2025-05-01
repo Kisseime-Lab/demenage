@@ -10,8 +10,7 @@ import java.util.Random;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,24 +55,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDomain getUserById(String id, String byAdmin) {
-        UserDomain _user = repository.findById(id).orElse(null);
-        if (_user == null) {
+        UserDomain userExisting = repository.findById(id).orElse(null);
+        if (userExisting == null) {
             throw new UsernameNotFoundException("Invalid user.");
         }
-        if (_user.isDeleted() && Objects.isNull(byAdmin)) {
+        if (userExisting.isDeleted() && Objects.isNull(byAdmin)) {
             throw new UsernameNotFoundException("Invalid user.");
         }
-        return _user;
+        return userExisting;
     }
 
     @Override
     public Optional<SignedInUser> createUser(User user) {
         logger.info("Start createUser service");
         logger.debug("Search if the user we want to create already exists");
-        UserDomain _user = this.findUserByEmail(user.getUsername(), null);
-        if (_user != null) {
+        UserDomain userExisting = this.findUserByEmail(user.getUsername(), null);
+        if (userExisting != null) {
             logger.warn("Cannot create user with an existing email");
-            throw new RuntimeException("Use different username and email.");
+            throw new BadCredentialsException("Use different username and email.");
         }
         UserDomain userEntity = repository.save(toEntity(user));
         logger.info("User created successfully");
@@ -95,9 +94,10 @@ public class UserServiceImpl implements UserService {
         return repository.save(userEntity);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void deleteUser(String email, String byAdmin) {
+        logger.info("start deleting user");
         UserDomain userEntity = this.findUserByEmail(email, byAdmin);
         repository.delete(userEntity);
     }
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
                 .ifPresentOrElse(
                         userTokenRepository::delete,
                         () -> {
-                            throw new RuntimeException("Invalid token.");
+                            throw new IllegalArgumentException("Invalid token.");
                         });
     }
 
@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) {
             return null;
         }
-        if ((Objects.isNull(byAdmin) && Objects.nonNull(userEntity) && userEntity.isDeleted())) {
+        if ((Objects.isNull(byAdmin) && userEntity.isDeleted())) {
             return null;
         }
         return userEntity;
@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(user.getRole())) {
             userEntity.setRole(RoleEnum.CUSTOMER);
         }
-        if (Objects.nonNull(user.getPassword()) && !Objects.equals(user.getPassword(), "")) {
+        if (!Objects.equals(user.getPassword(), "")) {
             userEntity.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         }
         return userEntity;
