@@ -33,27 +33,22 @@ public class AuthController implements UserApi {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService service;
-    private final PasswordEncoder passwordEncoder;
     private final UserDto userDto;
 
-    public AuthController(UserService service, PasswordEncoder passwordEncoder, UserDto userDto) {
+    public AuthController(UserService service, UserDto userDto) {
         this.service = service;
-        this.passwordEncoder = passwordEncoder;
         this.userDto = userDto;
     }
 
     @Override
     public ResponseEntity<SignedInUser> getAccessToken(@Valid RefreshToken refreshToken) {
-        return ok(service.getAccessToken(refreshToken).orElseThrow(RuntimeException::new));
+        return ok(service.getAccessToken(refreshToken));
     }
 
     @Override
     public ResponseEntity<SignedInUser> signIn(@Valid SignInReq signInReq) {
-        UserDomain userDomain = service.findUserByEmail(signInReq.getUsername(), null);
-        if (Objects.nonNull(userDomain) && passwordEncoder.matches(signInReq.getPassword(), userDomain.getPassword())) {
-            return ok(service.getSignedInUser(userDomain));
-        }
-        throw new InsufficientAuthenticationException("Email et/ou password Incorrect");
+        logger.info("Start signin request controller");
+        return status(HttpStatus.OK).body(service.authenticate(signInReq));
     }
 
     @Override
