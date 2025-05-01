@@ -1,4 +1,4 @@
-package com.startup.demenage.repository.Jpa;
+package com.startup.demenage.repository.jpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.startup.demenage.domain.OffreDomain;
 import com.startup.demenage.repository.OffreRepository;
-import com.startup.demenage.repository.Jpa.data.OffreEntity;
-import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
+import com.startup.demenage.repository.jpa.data.OffreEntity;
+import com.startup.demenage.repository.jpa.mappers.JpaMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -19,15 +19,6 @@ import jakarta.persistence.Query;
 
 @Repository
 public class OffreRepositoryJpa implements OffreRepository {
-
-    private static OffreRepositoryJpa instance;
-
-    public static OffreRepositoryJpa getInstance() {
-        if (instance == null) {
-            instance = new OffreRepositoryJpa();
-        }
-        return instance;
-    }
 
     @PersistenceContext
     private EntityManager em;

@@ -1,4 +1,4 @@
-package com.startup.demenage.repository.Jpa;
+package com.startup.demenage.repository.jpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import com.startup.demenage.domain.AnnonceDomain;
 import com.startup.demenage.repository.AnnonceRepository;
-import com.startup.demenage.repository.Jpa.data.AnnonceEntity;
-import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
+import com.startup.demenage.repository.jpa.data.AnnonceEntity;
+import com.startup.demenage.repository.jpa.mappers.JpaMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,14 +23,9 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class AnnonceRepositoryJpa implements AnnonceRepository {
 
-    private static AnnonceRepositoryJpa instance;
 
     @PersistenceContext
     private EntityManager em;
-
-    // private AnnonceRepositoryJpa() {
-    // setUpJpa();
-    // }
 
     @Override
     public Page<AnnonceDomain> findByDepartureCityContainingAndDestinationCityContaining(
@@ -83,14 +78,7 @@ public class AnnonceRepositoryJpa implements AnnonceRepository {
         em.remove(annonceEntity);
     }
 
-    // private void setUpJpa() {
-    // EntityManagerFactory entityManagerFactory =
-    // Persistence.createEntityManagerFactory("jpa");
-    // EntityManager em = entityManagerFactory.createEntityManager();
-    // this.em = em;
-    // }
 
-    public static AnnonceRepositoryJpa getInstance() {
         if (instance == null) {
             instance = new AnnonceRepositoryJpa();
         }

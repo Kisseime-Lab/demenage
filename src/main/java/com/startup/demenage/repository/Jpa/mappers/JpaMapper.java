@@ -1,15 +1,15 @@
-package com.startup.demenage.repository.Jpa.mappers;
+package com.startup.demenage.repository.jpa.mappers;
 
 import com.startup.demenage.domain.AdresseDomain;
 import com.startup.demenage.domain.AnnonceDomain;
 import com.startup.demenage.domain.OffreDomain;
 import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.domain.UserTokenDomain;
-import com.startup.demenage.repository.Jpa.data.AdresseEntity;
-import com.startup.demenage.repository.Jpa.data.AnnonceEntity;
-import com.startup.demenage.repository.Jpa.data.OffreEntity;
-import com.startup.demenage.repository.Jpa.data.UserEntity;
-import com.startup.demenage.repository.Jpa.data.UserTokenEntity;
+import com.startup.demenage.repository.jpa.data.AdresseEntity;
+import com.startup.demenage.repository.jpa.data.AnnonceEntity;
+import com.startup.demenage.repository.jpa.data.OffreEntity;
+import com.startup.demenage.repository.jpa.data.UserEntity;
+import com.startup.demenage.repository.jpa.data.UserTokenEntity;
 
 public class JpaMapper {
     public static AdresseEntity adresseToEntity(AdresseDomain domain) {
@@ -164,7 +164,7 @@ public class JpaMapper {
         UserTokenDomain domain = new UserTokenDomain();
         domain.setId(entity.getId());
         domain.setRefreshToken(entity.getRefreshToken());
-        // domain.setUser(userToDomain(entity.getUser()));
+        domain.setUser(userToDomain(entity.getUser()));
         return domain;
     }
 

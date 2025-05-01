@@ -1,4 +1,4 @@
-package com.startup.demenage.repository.Jpa.data;
+package com.startup.demenage.repository.jpa.data;
 
 import jakarta.persistence.Embeddable;
 
@@ -9,6 +9,7 @@ public class AdresseEntity {
     private String zipCode;
 
     public AdresseEntity() {
+        //POJO
     }
 
     public String getCity() {

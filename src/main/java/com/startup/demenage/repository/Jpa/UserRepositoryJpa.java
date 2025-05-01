@@ -1,23 +1,24 @@
-package com.startup.demenage.repository.Jpa;
+package com.startup.demenage.repository.jpa;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.startup.demenage.domain.UserDomain;
 import com.startup.demenage.repository.UserRepository;
-import com.startup.demenage.repository.Jpa.data.UserEntity;
-import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
 import com.startup.demenage.repository.StubMemory.StubMemoryUserRepository;
+import com.startup.demenage.repository.jpa.data.UserEntity;
+import com.startup.demenage.repository.jpa.mappers.JpaMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import jakarta.transaction.Transactional;
 
 @Repository
 @Transactional
@@ -44,14 +45,18 @@ public class UserRepositoryJpa implements UserRepository {
     @Override
     public UserDomain save(UserDomain user) {
         UserEntity userEntity = JpaMapper.userToEntity(user);
-        em.merge(userEntity);
+        em.persist(userEntity);
         return user;
     }
 
     @Override
     public void delete(UserDomain user) {
-        UserEntity userEntity = JpaMapper.userToEntity(user);
-        em.remove(userEntity);
+        UserEntity userEntity = em.find(UserEntity.class, user.getId());
+        Hibernate.initialize(userEntity.getToken());
+        if (userEntity != null) {
+            em.remove(userEntity); // Supprime l'entité attachée
+        }
+        logger.info("user deleted successfully");
     }
 
     @Override

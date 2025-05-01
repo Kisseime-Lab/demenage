@@ -1,16 +1,15 @@
-package com.startup.demenage.repository.Jpa;
+package com.startup.demenage.repository.jpa;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.startup.demenage.domain.OffreDomain;
 import com.startup.demenage.domain.UserTokenDomain;
 import com.startup.demenage.repository.UserTokenRepository;
-import com.startup.demenage.repository.Jpa.data.UserEntity;
-import com.startup.demenage.repository.Jpa.data.UserTokenEntity;
-import com.startup.demenage.repository.Jpa.mappers.JpaMapper;
+import com.startup.demenage.repository.jpa.data.UserEntity;
+import com.startup.demenage.repository.jpa.data.UserTokenEntity;
+import com.startup.demenage.repository.jpa.mappers.JpaMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -21,14 +20,6 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
 
     @PersistenceContext
     private EntityManager em;
-    private static UserTokenRepositoryJpa instance;
-
-    public static UserTokenRepositoryJpa getInstance() {
-        if (instance == null) {
-            instance = new UserTokenRepositoryJpa();
-        }
-        return instance;
-    }
 
     @Override
     public Optional<UserTokenDomain> findByRefreshToken(String refreshToken) {
@@ -39,7 +30,7 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
 
         List<UserTokenEntity> result = query.getResultList();
 
-        return result.size() > 0 ? Optional.of(JpaMapper.userTokenToDomain(result.get(0))) : Optional.empty();
+        return result.isEmpty() ? Optional.of(JpaMapper.userTokenToDomain(result.get(0))) : Optional.empty();
     }
 
     @Override
@@ -58,9 +49,8 @@ public class UserTokenRepositoryJpa implements UserTokenRepository {
         UserEntity user = em.find(UserEntity.class,
                 userTokenEntity.getUser().getId());
         user.getToken().add(userTokenEntity);
-        userTokenEntity.setUser(em.merge(user));
-        em.persist(userTokenEntity);
-        // em.merge(userTokenEntity);
+        userTokenEntity.setUser(user);
+        em.merge(user);
     }
 
     @Override
